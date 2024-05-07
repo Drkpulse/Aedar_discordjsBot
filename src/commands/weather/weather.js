@@ -25,7 +25,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
-                .setTitle(`Weather in ${weatherData.name}`)
+                .setTitle(`Weather in [${weatherData.name}](https://openweathermap.org/city/${weatherData.id})`)
                 .setDescription(weatherData.weather[0].description)
                 .setThumbnail(weatherIcon)
                 .addFields(
