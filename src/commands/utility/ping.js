@@ -1,12 +1,14 @@
-module.exports = {
-	name: 'ping',
-	description: 'Pong?',
-	// devOnly: Boolean
-	// testOnly: Boolean
-	// options: []
-	// deleted:Boolen
+const { SlashCommandBuilder } = require('discord.js');
+const cooldowns = require('../../validations/cooldowns');
 
-	callback: async (client, interaction) => {
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('ping')
+        .setDescription('Pong?')
+    ,
+
+	run: async ({interaction, client, handler}) => {
 	  await interaction.deferReply();
 
 	  const reply = await interaction.fetchReply();
@@ -16,5 +18,12 @@ module.exports = {
 	  interaction.editReply(
 		`Pong! Client ${ping}ms | Websocket: ${client.ws.ping}ms`
 	  );
+	},
+	options: {
+		cooldown: '1h',
+		devOnly: true,
+		//userPermissions: ['Adminstrator'],
+		//botPermissions: ['BanMembers'],
+		//deleted: true,
 	},
   };
