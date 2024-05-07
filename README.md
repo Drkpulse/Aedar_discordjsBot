@@ -19,7 +19,7 @@ This bot is designed to enhance the Patins No Porto discord server
 1. Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/Drkpulse/jsdiscord
+git clone https://github.com/Drkpulse/jsdiscord.git
 ```
 
 2. Navigate to the project directory:
