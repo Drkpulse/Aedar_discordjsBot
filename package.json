@@ -1,6 +1,6 @@
 {
   "name": "jsdiscord",
-  "version": "1.0.0",
+  "version": "v1.0.0",
   "description": "",
   "main": "src/index.js",
   "scripts": {
