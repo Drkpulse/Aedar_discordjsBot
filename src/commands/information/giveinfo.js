@@ -7,7 +7,8 @@ module.exports = {
     },
 
     run: ({ interaction, client, handler }) => {
-        interaction.reply(`${interaction.user.}`);
+        const mentionedUser = interaction.targetMessage.author.toString();
+    	interaction.reply(`Hey ${mentionedUser}!`);
     },
 
     options: {
