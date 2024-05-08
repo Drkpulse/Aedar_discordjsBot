@@ -1,13 +1,12 @@
-const { SlashCommandBuilder } = require('discord.js');
 const { ReloadType } = require('commandkit');
 const cooldowns = require('../../validations/cooldowns');
 
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('reload')
-        .setDescription('Reloads all Commands')
-    ,
+	data: {
+        name: 'reload',
+        description: 'Reloads all Commands',
+    },
 
 	run: async ({interaction, client, handler}) => {
 	  await interaction.deferReply();

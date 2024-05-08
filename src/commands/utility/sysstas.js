@@ -1,13 +1,13 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const os = require('os');
 const { execSync } = require('child_process');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('systemstats')
-        .setDescription('Print system statistics'),
+	data: {
+        name: 'systemstats',
+        description: 'Print system statistics',
+    },
 
-    async execute(interaction) {
+		run: async ({interaction, client, handler}) => {
         await interaction.deferReply();
 
         // Get total system memory and free memory
@@ -33,6 +33,13 @@ module.exports = {
         const response = `RAM Usage: ${ramUsage}\nCPU Usage Percentage: ${cpuUsagePercentage}%\nCPU Temperature: ${cpuTemperature}`;
         await interaction.editReply(response);
     },
+	options: {
+		//cooldown: '1h',
+		devOnly: true,
+		//userPermissions: ['Adminstrator'],
+		//botPermissions: ['BanMembers'],
+		//deleted: true,
+	},
 };
 
 function calculateCpuUsage(cpuUsage) {

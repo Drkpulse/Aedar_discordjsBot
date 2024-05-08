@@ -1,14 +1,22 @@
 {
-  "name": "jsdiscord",
-  "version": "v1.0.0",
-  "description": "",
+  "name": "aedarbot",
+  "version": "v1.2.1",
+  "author": "Drkpulse",
+  "homepage": "https://github.com/Drkpulse/Aedar_discordjsBot",
+  "description": "Aedar multi-purpose Discord Bot",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Drkpulse/jsdiscord.git"
+  },
   "keywords": [],
-  "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Drkpulse/Aedar_discordjsBot/issues"
+  },
   "dependencies": {
     "axios": "^1.6.8",
     "commandkit": "^0.1.10",

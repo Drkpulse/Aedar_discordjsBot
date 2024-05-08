@@ -1,12 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
 const cooldowns = require('../../validations/cooldowns');
 
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('ping')
-        .setDescription('Pong?')
-    ,
+    data: {
+        name: 'ping',
+        description: 'Pong!',
+    },
 
 	run: async ({interaction, client, handler}) => {
 	  await interaction.deferReply();
@@ -20,7 +19,7 @@ module.exports = {
 	  );
 	},
 	options: {
-		cooldown: '1h',
+		//cooldown: '1h',
 		devOnly: true,
 		//userPermissions: ['Adminstrator'],
 		//botPermissions: ['BanMembers'],
