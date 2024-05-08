@@ -1,6 +1,6 @@
-# Still with no name Discord Bot
+# Aedar multi-purpose Discord Bot
 
-This bot is designed to enhance the Patins No Porto discord server
+This bot is designed to enhance the Patins No Porto discord server, and other fancy stuff
 
 ## Features
 
@@ -47,7 +47,7 @@ Edit the `.env` file and add your Discord Bot token.
 Start the bot with:
 
 ```bash
-npm start
+node .
 ```
 
 ### Configuration
