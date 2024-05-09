@@ -25,7 +25,7 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setColor('#0099ff')
-                .setTitle(`Weather in [${weatherData.name}](https://openweathermap.org/city/${weatherData.id})`)
+                .setTitle(`Weather in ${weatherData.name}`)
                 .setDescription(weatherData.weather[0].description)
                 .setThumbnail(weatherIcon)
                 .addFields(
@@ -33,6 +33,7 @@ module.exports = {
                     { name: 'Feels Like', value: `${weatherData.main.feels_like}°C`, inline: true },
                     { name: 'Humidity', value: `${weatherData.main.humidity}%` },
                     { name: 'Wind Speed', value: `${weatherData.wind.speed} m/s ${windEmoji}` },
+					{ name: 'Link', value: `[Website](https://openweathermap.org/city/${weatherData.id})` },
                 )
                 .setTimestamp()
                 .setFooter({ text: 'Data provided by OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });

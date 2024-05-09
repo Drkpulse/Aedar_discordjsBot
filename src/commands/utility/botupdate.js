@@ -1,4 +1,4 @@
-/*
+
 const { exec } = require('child_process');
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
 
     async execute(interaction) {
         // Execute the bash script
-        exec('/path/to/your/script.sh', (error, stdout, stderr) => {
+        exec('../../upbot.sh', (error, stdout, stderr) => {
             if (error) {
                 console.error(`Error: ${error.message}`);
                 interaction.reply('Error updating the repository.');
@@ -27,4 +27,4 @@ module.exports = {
         });
     },
 };
-*/
+

@@ -2,8 +2,8 @@ const { ModalBuilder, EmbedBuilder, TextInputBuilder, TextInputStyle, ActionRowB
 
 module.exports = {
     data: {
-        name: 'sugestao',
-        description: 'Envia a tua sugestão sobre o Server',
+        name: 'botfeedback',
+        description: 'Send feedback about the bot',
     },
 
     run: async ({ interaction, client }) => {
@@ -17,17 +17,17 @@ module.exports = {
 
         const modal = new ModalBuilder({
             customId: `myModal-${interaction.user.id}`,
-            title: 'Sugestão',
+            title: 'Sugestão para o bot',
         });
 
-        const hobbiesInput = new TextInputBuilder({
+        const botInput = new TextInputBuilder({
             customId: 'sugestInput',
             label: "Tens alguma opinão que querias partilhar?",
             style: TextInputStyle.Paragraph,
         });
 
         // An action row only holds one text input,
-        const firstActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
+        const firstActionRow = new ActionRowBuilder().addComponents(botInput);
 
         // Add inputs to the modal
         modal.addComponents(firstActionRow);
@@ -43,21 +43,18 @@ module.exports = {
                 const sugestValue = modalInteraction.fields.getTextInputValue('sugestInput');
 
 				const embed = new EmbedBuilder()
-                .setColor('#0099ff')
-                .setTitle(`Sugestão`)
+                .setColor('#C200EB')
+                .setTitle(`Sugestão para o Bot`)
                 .setDescription(`${sugestValue}`)
                 //.setThumbnail()
                 .setTimestamp()
                 .setFooter({ text: `Enviado por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL()});
 
-				//Close Modal
-				modalInteraction.closeModal();
-
 				// Send the result to the feedback channel
 				feedbackChannel.send({ embeds: [embed] });
 
 				// Positive Response to User
-				interaction.followUp({ content: 'Obrigado pela Sugestão <a:hay:1202624710735822878>', ephemeral: true });
+				modalInteraction.reply({ content: 'Obrigado pela Sugestão <a:hay:1202624710735822878>', ephemeral: true });
 
             })
             .catch((err) => {
