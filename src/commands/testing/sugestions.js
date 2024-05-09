@@ -2,7 +2,7 @@ const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = req
 
 module.exports = {
     data: {
-        name: 'modal',
+        name: 'sugestion', //TODO: Change all this to suggestion modal and add predifined channel
         description: 'Pong!',
     },
 
