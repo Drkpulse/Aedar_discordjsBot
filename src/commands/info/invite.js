@@ -1,12 +1,11 @@
-const { SlashCommandBuilder } = require('discord.js');
 const cooldowns = require('../../validations/cooldowns');
 
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('invite')
-        .setDescription('Como dar invite a alguém')
-    ,
+	data:{
+		name: 'invite',
+        description: 'Como dar invite a alguém',
+	},
 
 	run: async ({interaction, client, handler}) => {
 	interaction.reply(`Para receber um invite é necessário comparecer num dos nossos eventos principais`);

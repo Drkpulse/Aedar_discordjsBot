@@ -2,8 +2,8 @@ const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = req
 
 module.exports = {
     data: {
-        name: 'feedback', //TODO: Change all this to feedback modal and change reply method and add Embed to response
-        description: 'Send bot feedback',
+        name: 'botfeedback', //TODO: Change all this to feedback modal and change reply method and add Embed to response
+        description: 'Send feedback about the bot',
     },
 
     run: async ({ interaction, client }) => {

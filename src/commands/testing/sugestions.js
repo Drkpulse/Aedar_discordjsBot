@@ -1,67 +1,73 @@
-const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
+const { ModalBuilder, EmbedBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = require('discord.js');
 
 module.exports = {
     data: {
-        name: 'sugestion', //TODO: Change all this to suggestion modal and add predifined channel
-        description: 'Pong!',
+        name: 'sugestao',
+        description: 'Envia a tua sugestão sobre o Server',
     },
 
-    run: async ({ interaction }) => {
+    run: async ({ interaction, client }) => {
+        // Fetch the channel where you want to send the result
+        const feedbackChannelId = '1237868787991056404'; // Replace with your channel ID
+        const feedbackChannel = await client.channels.fetch(feedbackChannelId);
+
+        if (!feedbackChannel) {
+            return interaction.reply('Error: Channel not defined.');
+        }
 
         const modal = new ModalBuilder({
-			customId: `myModal-${interaction.user.id}`,
-            title: 'My Modal',
-		})
+            customId: `myModal-${interaction.user.id}`,
+            title: 'Sugestão',
+        });
 
-
-        // Create the text input components
-        const favoriteColorInput = new TextInputBuilder({
-			customId: 'favoriteColorInput',
-            // The label is the prompt the user sees for this input
-            label: "What's your favorite color?",
-            // Short means only a single line of text
-            style: TextInputStyle.Short,
-			});
-
-		const hobbiesInput = new TextInputBuilder({
-			customId: 'hobbiesInput',
-            // The label is the prompt the user sees for this input
-            label: "What's some of your favorite hobbies?",
-            // Short means only a single line of text
+        const hobbiesInput = new TextInputBuilder({
+            customId: 'sugestInput',
+            label: "Tens alguma opinão que querias partilhar?",
             style: TextInputStyle.Paragraph,
-			});
+        });
 
         // An action row only holds one text input,
-        // so you need one action row per text input.
-        const firstActionRow = new ActionRowBuilder().addComponents(favoriteColorInput);
-        const secondActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
+        const firstActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
 
         // Add inputs to the modal
-        modal.addComponents(firstActionRow, secondActionRow);
+        modal.addComponents(firstActionRow);
 
         // Show the modal to the user
         await interaction.showModal(modal);
 
-		const filter = (interaction) => interaction.customId === `myModal-${interaction.user.id}`;
+        const filter = (interaction) => interaction.customId === `myModal-${interaction.user.id}`;
 
-		interaction
-		  .awaitModalSubmit({ filter, time: 60_000})
-		  .then((modalInteraction) => {
-			const favoriteColorValue = modalInteraction.fields.getTextInputValue('favoriteColorInput');
-			const hobbiesValue = modalInteraction.fields.getTextInputValue('hobbiesInput');
+        interaction
+            .awaitModalSubmit({ filter, time: 60000 })
+            .then((modalInteraction) => {
+                const sugestValue = modalInteraction.fields.getTextInputValue('sugestInput');
 
-			modalInteraction.reply(`Your favorite color: ${favoriteColorValue}\nYour hobbies: ${hobbiesValue}`);
-		  })
-		  .catch((err) => {
-			console.log(err);
-		  })
+				const embed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle(`Sugestão`)
+                .setDescription(`${sugestValue}`)
+                //.setThumbnail()
+                .setTimestamp()
+                .setFooter({ text: `Enviado por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL()});
+
+				//Close Modal
+				modalInteraction.closeModal();
+
+				// Send the result to the feedback channel
+				feedbackChannel.send({ embeds: [embed] });
+
+				// Positive Response to User
+				interaction.followUp({ content: 'Obrigado pela Sugestão <a:hay:1202624710735822878>', ephemeral: true });
+
+            })
+            .catch((err) => {
+                console.error('Error:', err);
+                interaction.followUp({ content: 'An error occurred while processing your feedback.', ephemeral: true });
+            });
     },
 
     options: {
-        //cooldown: '1h',
         devOnly: true,
-        //userPermissions: ['Adminstrator'],
-        //botPermissions: ['BanMembers'],
-        //deleted: true,
     },
 };
+

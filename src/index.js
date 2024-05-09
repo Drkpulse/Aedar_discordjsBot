@@ -22,10 +22,5 @@ new CommandKit({
 	//skipBuiltInValidations: true, // Skips commmand options validation
 
 })
-/*
-client.on('ready', (client) => {
-    console.log(`${client.user.username} is online.`);
-});
-*/
 
 client.login(process.env.BOT_TOKEN);

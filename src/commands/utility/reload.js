@@ -13,7 +13,7 @@ module.exports = {
 
 	  await handler.reloadCommands();
 
-	  interaction.followUp('All Reloaded!');
+	  interaction.followUp({ content: 'All Reloaded', ephemeral: true });
 	},
 	options: {
 		//cooldown: '1h',
