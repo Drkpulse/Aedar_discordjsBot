@@ -42,13 +42,13 @@ module.exports = {
 				console.error('Error reporting data:', error);
 				await interaction.followUp({ content: 'An error occurred while reporting. Please try again later.', ephemeral: true });
 			}
-    },
+	},
 
-    options: {
-        devOnly: true,
-        userPermissions: [],
-        botPermissions: [],
-        deleted: false,
-    },
+	options: {
+		devOnly: true,
+		userPermissions: [],
+		botPermissions: [],
+		deleted: false,
+	},
 };
 

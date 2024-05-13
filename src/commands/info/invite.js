@@ -4,7 +4,7 @@ const cooldowns = require('../../validations/cooldowns');
 module.exports = {
 	data:{
 		name: 'invite',
-        description: 'Como dar invite a alguém',
+		description: 'Como dar invite a alguém',
 	},
 
 	run: async ({interaction, client, handler}) => {

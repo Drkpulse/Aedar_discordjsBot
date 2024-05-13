@@ -4,16 +4,16 @@ const cooldowns = require('../../validations/cooldowns');
 
 module.exports = {
 	data: {
-        name: 'reload',
-        description: 'Reloads all Commands',
-    },
+		name: 'reload',
+		description: 'Reloads all Commands',
+	},
 
 	run: async ({interaction, client, handler}) => {
-	  await interaction.deferReply();
+	await interaction.deferReply();
 
-	  await handler.reloadCommands();
+	await handler.reloadCommands();
 
-	  interaction.followUp({ content: 'All Reloaded', ephemeral: true });
+	interaction.followUp({ content: 'All Reloaded', ephemeral: true });
 	},
 	options: {
 		//cooldown: '1h',

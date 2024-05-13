@@ -2,9 +2,9 @@ const cooldowns = require('../../validations/cooldowns');
 
 
 module.exports = {
-    data:{
+	data:{
 		name: 'info',
-        description: 'Informações sobre os Patins no Porto',
+		description: 'Informações sobre os Patins no Porto',
 	},
 
 	run: async ({interaction, client, handler}) => {
