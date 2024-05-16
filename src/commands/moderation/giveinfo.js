@@ -9,6 +9,12 @@ module.exports = {
 	run: ({ interaction, client, handler }) => {
 		const mentionedUser = interaction.targetMessage.author.toString();
 		interaction.reply(`Hey ${mentionedUser}!`);
+        // Log command usage
+        const dateTime = new Date().toISOString();
+        const user = interaction.user.tag;
+        const interactionId = interaction.commandName;
+
+        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {

@@ -28,6 +28,12 @@ module.exports = {
 			console.error('Error fetching gif:', error);
 			await interaction.reply({ content: 'An error occurred while fetching the gif. Please try again later.', ephemeral: true });
 		}
+        // Log command usage
+        const dateTime = new Date().toISOString();
+        const user = interaction.user.tag;
+        const interactionId = interaction.commandName;
+
+        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		devOnly: true,

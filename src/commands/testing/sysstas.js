@@ -32,6 +32,13 @@ module.exports = {
 
 		const response = `RAM Usage: ${ramUsage}\nCPU Usage Percentage: ${cpuUsagePercentage}%\nCPU Temperature: ${cpuTemperature}`;
 		await interaction.editReply(response);
+
+	// Log command usage
+	const dateTime = new Date().toISOString();
+	const user = interaction.user.tag;
+	const interactionId = interaction.commandName;
+
+	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		//cooldown: '1h',

@@ -42,6 +42,12 @@ module.exports = {
 				console.error('Error reporting data:', error);
 				await interaction.followUp({ content: 'An error occurred while reporting. Please try again later.', ephemeral: true });
 			}
+        // Log command usage
+        const dateTime = new Date().toISOString();
+        const user = interaction.user.tag;
+        const interactionId = interaction.commandName;
+
+        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {

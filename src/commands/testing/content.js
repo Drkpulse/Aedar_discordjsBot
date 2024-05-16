@@ -8,6 +8,13 @@ module.exports = {
 
 	run: ({ interaction, client, handler }) => {
 		interaction.reply(`The message is: ${interaction.targetMessage.content}`);
+
+	// Log command usage
+	const dateTime = new Date().toISOString();
+	const user = interaction.user.tag;
+	const interactionId = interaction.commandName;
+
+	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {

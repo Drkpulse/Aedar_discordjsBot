@@ -61,6 +61,13 @@ module.exports = {
 				console.error('Error:', err);
 				interaction.followUp({ content: 'An error occurred while processing your feedback.', ephemeral: true });
 			});
+
+        // Log command usage
+        const dateTime = new Date().toISOString();
+        const user = interaction.user.tag;
+        const interactionId = interaction.commandName;
+
+        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {

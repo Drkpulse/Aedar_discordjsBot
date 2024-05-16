@@ -1,5 +1,6 @@
 const { ReloadType } = require('commandkit');
 const cooldowns = require('../../validations/cooldowns');
+const { Events } = require('discord.js');
 
 
 module.exports = {
@@ -14,6 +15,13 @@ module.exports = {
 	await handler.reloadCommands();
 
 	interaction.followUp({ content: 'All Reloaded', ephemeral: true });
+
+	// Log command usage
+	const dateTime = new Date().toISOString();
+	const user = interaction.user.tag;
+	const interactionId = interaction.commandName;
+
+	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		//cooldown: '1h',
