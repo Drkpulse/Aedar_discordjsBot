@@ -8,20 +8,25 @@ module.exports = {
     run: async ({ interaction, client, handler }) => {
         await interaction.deferReply({ fetchReply: true });
 
-        const outcome = Math.random() < 0.5 ? 'heads' : 'tails';
-        const emoji = outcome === 'heads' ? '🪙' : '⚫';
+		// Construct the custom emoji strings
+		const headsEmoji = `<:bit_head:1240722456873009274>`;
+		const tailsEmoji = `<:bit_tail:1240722455530700921>`;
 
-        await interaction.editReply(`The coin landed on ${outcome} ${emoji}`);
+        const outcome = Math.random() <= 0.5 ? 'cara' : 'croa';
+        const emoji = outcome === 'cara' ? headsEmoji : tailsEmoji;
+
+        await interaction.editReply(`Saiu ${outcome} ${emoji}`);
 
         // Log command usage
-        const dateTime = new Date().toISOString();
-        const user = interaction.user.tag;
-        const interactionId = interaction.commandName;
+		 const date = new Date();
+		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		 const user = interaction.user.tag;
+		 const interactionId = interaction.commandName;
 
-        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
     },
     options: {
-        //cooldown: '1h',
+        cooldown: '1m',
         devOnly: true,
         //userPermissions: ['Administrator'],
         //botPermissions: ['BanMembers'],

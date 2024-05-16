@@ -37,6 +37,13 @@ module.exports = {
 			await interaction.followUp({ content: 'An error occurred while fetching the forecast data. Please try again later.', ephemeral: true });
 			console.error('Error fetching forecast data:', error);
 		}
+		// Log command usage
+		const date = new Date();
+		const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		const user = interaction.user.tag;
+		const interactionId = interaction.commandName;
+
+		console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		//cooldown: '1h',

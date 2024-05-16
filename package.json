@@ -18,6 +18,7 @@
     "url": "https://github.com/Drkpulse/Aedar_discordjsBot/issues"
   },
   "dependencies": {
+    "@google-cloud/translate": "^8.2.0",
     "axios": "^1.6.8",
     "commandkit": "^0.1.10",
     "discord.js": "^14.14.1",

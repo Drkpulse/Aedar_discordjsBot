@@ -10,21 +10,22 @@ module.exports = {
 	},
 
 	run: async ({interaction, client, handler}) => {
-	await interaction.deferReply();
+	await interaction.deferReply({ ephemeral: true });
 
 	await handler.reloadCommands();
 
 	interaction.followUp({ content: 'All Reloaded', ephemeral: true });
 
 	// Log command usage
-	const dateTime = new Date().toISOString();
+	const date = new Date();
+	const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 	const user = interaction.user.tag;
 	const interactionId = interaction.commandName;
 
 	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
-		//cooldown: '1h',
+		cooldown: '1h',
 		devOnly: true,
 		//userPermissions: ['Adminstrator'],
 		//botPermissions: ['BanMembers'],

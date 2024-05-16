@@ -8,13 +8,14 @@ module.exports = {
 
 	run: ({ interaction, client, handler }) => {
 		const mentionedUser = interaction.targetMessage.author.toString();
-		interaction.reply(`Hey ${mentionedUser}!`);
+		interaction.reply(`Placeholder ${mentionedUser} para informações sobre os Patins no Porto com menção da pessoa, Só admins podem user ${mentionedUser}!`);
         // Log command usage
-        const dateTime = new Date().toISOString();
-        const user = interaction.user.tag;
-        const interactionId = interaction.commandName;
+		 const date = new Date();
+		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		 const user = interaction.user.tag;
+		 const interactionId = interaction.commandName;
 
-        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {

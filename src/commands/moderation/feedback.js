@@ -59,21 +59,23 @@ module.exports = {
 			})
 			.catch((err) => {
 				console.error('Error:', err);
-				interaction.followUp({ content: 'An error occurred while processing your feedback.', ephemeral: true });
+				interaction.followUp({ content: 'O bot precisa de umas férias, tenta novamente', ephemeral: true });
 			});
         // Log command usage
-        const dateTime = new Date().toISOString();
-        const user = interaction.user.tag;
-        const interactionId = interaction.commandName;
+		 const date = new Date();
+		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		 const user = interaction.user.tag;
+		 const interactionId = interaction.commandName;
 
-        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {
 		devOnly: true,
-		userPermissions: [],
-		botPermissions: [],
-		deleted: false,
+		cooldown: '10m',
+		//userPermissions: [],
+		//botPermissions: [],
+		//deleted: false,
 	},
 };
 

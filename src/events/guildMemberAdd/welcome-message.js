@@ -12,7 +12,7 @@ module.exports = async (guildMember) => {
 		const welcomeChannel = guildMember.guild.channels.cache.get(welcomeChannelId);
 		if (!welcomeChannel) return;
 
-		const welcomeMessage = `Welcome to the server, ${guildMember.user.tag}! We're glad you joined us.`;
+		const welcomeMessage = `Bem-vindo, ${guildMember.user.tag}! Verifica as regras e blah blah`;
 
 		welcomeChannel.send({ content: welcomeMessage });
 	} catch (error) {

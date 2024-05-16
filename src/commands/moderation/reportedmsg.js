@@ -2,7 +2,7 @@ const { ApplicationCommandType, EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	data: {
-		name: 'Report Message',
+		name: 'Reporta Mensagem',
 		type: ApplicationCommandType.Message,
 	},
 
@@ -37,24 +37,26 @@ module.exports = {
 			await reportChannel.send({ embeds: [embed] });
 
 			// Reply to the interaction
-			 await interaction.followUp({ content: 'Message reported successfully.', ephemeral: true });
+			 await interaction.followUp({ content: 'A Mensagem foi reportada!', ephemeral: true });
 			} catch (error) {
 				console.error('Error reporting data:', error);
-				await interaction.followUp({ content: 'An error occurred while reporting. Please try again later.', ephemeral: true });
+				await interaction.followUp({ content: 'Ocorreu um erro a reportar, tenta novamente', ephemeral: true });
 			}
         // Log command usage
-        const dateTime = new Date().toISOString();
-        const user = interaction.user.tag;
-        const interactionId = interaction.commandName;
+		 const date = new Date();
+		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		 const user = interaction.user.tag;
+		 const interactionId = interaction.commandName;
 
-        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {
 		devOnly: true,
-		userPermissions: [],
-		botPermissions: [],
-		deleted: false,
+		cooldown: '20s',
+		//userPermissions: [],
+		//botPermissions: [],
+		//deleted: false,
 	},
 };
 

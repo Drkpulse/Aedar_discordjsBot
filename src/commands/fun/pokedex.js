@@ -21,14 +21,15 @@ module.exports = {
         await interaction.editReply(response);
 
         // Log command usage
-        const dateTime = new Date().toISOString();
-        const user = interaction.user.tag;
-        const interactionId = interaction.commandName;
+		 const date = new Date();
+		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		 const user = interaction.user.tag;
+		 const interactionId = interaction.commandName;
 
-        console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
     },
     options: {
-        //cooldown: '1h',
+        cooldown: '1m',
         devOnly: true,
         //userPermissions: ['Administrator'],
         //botPermissions: ['BanMembers'],
@@ -48,7 +49,7 @@ async function pokedex(pokemon) {
 
         const embed = new EmbedBuilder()
             .setTitle(`Pokédex - ${json.name}`)
-            .setColor('#0099ff')
+            .setColor('#FF0000')
             .setThumbnail(json.sprite)
             .setDescription(
                 `
