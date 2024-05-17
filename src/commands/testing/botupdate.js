@@ -34,9 +34,9 @@ module.exports = {
 	},
 	options: {
 		devOnly: true,
-		userPermissions: [],
-		botPermissions: [],
-		deleted: false,
+		//userPermissions: [],
+		//botPermissions: [],
+		//deleted: false,
 	},
 };
 
