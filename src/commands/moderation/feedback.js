@@ -8,7 +8,7 @@ module.exports = {
 
 	run: async ({ interaction, client }) => {
 		// Fetch the channel where you want to send the result
-		const feedbackChannelId = process.env.BOTFEEDBACK_CHANNELID; // Replace with your channel ID
+		const feedbackChannelId = process.env.BOTFEEDBACK_CHANNELID;
 		const feedbackChannel = await client.channels.fetch(feedbackChannelId);
 
 		if (!feedbackChannel) {
