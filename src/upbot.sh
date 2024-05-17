@@ -18,7 +18,7 @@ if [ $? -eq 0 ]; then
 
 	# Start nodemon
 	# echo "Starting nodemon..."
-	# nodemon # Replace app.js with your main Node.js file
+	node . # Replace app.js with your main Node.js file
 else
 	echo "Error: Failed to update repository."
 fi
