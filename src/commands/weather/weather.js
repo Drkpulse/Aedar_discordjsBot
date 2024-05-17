@@ -6,11 +6,11 @@ const consoleLog = require('../../events/ready/console-log');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('weather')
-		.setDescription('Start a activity')
+		.setDescription('Verifica como está o tempo')
 		.addStringOption((option) =>
 			option
 				.setName('location')
-				.setDescription('The activity that you want')
+				.setDescription('Local')
 				.setRequired(true)
 		),
 
