@@ -12,7 +12,7 @@ module.exports = {
 			await interaction.deferReply();
 
 			// Send the reported message to a specific channel
-			const reportChannelId = '707992801656176670';
+			const reportChannelId = process.env.REPORT_CHANNELID;
 			const reportChannel = interaction.guild.channels.cache.get(reportChannelId);
 			if (!reportChannel) {
 				return interaction.followUp('Error: Report channel not found.');

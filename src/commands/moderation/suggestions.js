@@ -8,7 +8,7 @@ module.exports = {
 
 	run: async ({ interaction, client }) => {
 		// Fetch the channel where you want to send the result
-		const feedbackChannelId = '1237868787991056404'; // Replace with your channel ID
+		const feedbackChannelId = process.env.SUGGESTION_CHANNELID; // Replace with your channel ID
 		const feedbackChannel = await client.channels.fetch(feedbackChannelId);
 
 		if (!feedbackChannel) {
