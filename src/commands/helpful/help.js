@@ -55,6 +55,21 @@ module.exports = {
 					parameters: []
 				},
 				{
+					name: '/weather',
+					description: 'Verifica como está o tempo',
+					parameters: [
+						{ name: 'Local', description: 'Local a pesquisar' }
+					]
+				},
+				{
+					name: '/forecast',
+					description: 'Obtem a previsão do tempo para um dia específico dos próximos 5 dias',
+					parameters: [
+						{ name: 'Local', description: 'Local a pesquisar' },
+						{ name: 'Dia', description: 'Dia que pretendes' }
+					]
+				},
+				{
 					name: 'Flag Translation',
 					description: 'Reaje a uma mensagem com a bandeira da lingua que pretendes',
 					parameters: []

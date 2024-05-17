@@ -62,9 +62,12 @@ module.exports = (message, client) => {
 	const randomIndex = Math.floor(Math.random() * replies.length);
 	const reply = replies[randomIndex];
 
-	// Reply to the message with the selected text and gif (if available)
-	if (reply.gif) {
-		message.reply(reply.text, { files: [reply.gif] });
+	// Reply to the message with the selected text and gif
+	 if (reply.gif) {
+        message.reply({
+            content: reply.text,
+            files: [reply.gif]
+        });
 	} else {
 		message.reply(reply.text);
 	}

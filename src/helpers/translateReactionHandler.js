@@ -29,7 +29,6 @@ module.exports = async (reaction, user, client) => {
 		//console.log(`Received reaction: ${emoji} from user: ${user.tag}`);
 
 		if (!flagToLanguage[emoji]) {
-			console.log(`Emoji ${emoji} does not correspond to a supported language.`);
 			return;
 		}
 

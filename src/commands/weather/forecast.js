@@ -4,52 +4,105 @@ const axios = require('axios');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('forecast')
-		.setDescription('Get the weather forecast for a location')
+		.setDescription('Obter previsão do tempo para um dia específico nos próximos 5 dias')
 		.addStringOption(option =>
-			option.setName('location')
-				.setDescription('The location to get the forecast for')
-				.setRequired(true)),
+			option
+				.setName('local')
+				.setDescription('Local a pesquisar')
+				.setRequired(true)
+		)
+		.addIntegerOption(option =>
+			option
+				.setName('dia')
+				.setDescription('Dia (1-31)')
+				.setRequired(true)
+		),
 
-	async run({ interaction }) {
+	run: async ({ interaction, client, handler }) => {
 		await interaction.deferReply({ fetchReply: true });
-		const location = interaction.options.getString('location');
+		const location = interaction.options.getString('local');
+		const day = interaction.options.getInteger('dia');
+		const currentDate = new Date();
+		const currentYear = currentDate.getFullYear();
+		const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed in JS Date
+
+		let forecastYear = currentYear;
+		let forecastMonth = currentMonth;
+
+		// Check if the provided day is in the next month
+		if (day < currentDate.getDate()) {
+			forecastMonth += 1;
+			if (forecastMonth > 12) {
+				forecastMonth = 1;
+				forecastYear += 1;
+			}
+		}
+
+		const date = `${forecastYear}-${forecastMonth.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
 		try {
 			const response = await axios.get(`https://api.openweathermap.org/data/2.5/forecast?q=${location}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`);
-			const forecastData = response.data.list;
+			const forecastData = response.data;
 
-			forecastData.forEach(data => {
-				const date = new Date(data.dt * 1000); // Convert UNIX timestamp to milliseconds
-				const timeString = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-				const dateString = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+			// Filter forecasts for the specified date
+			const filteredForecasts = forecastData.list.filter(forecast => {
+				const forecastDate = new Date(forecast.dt * 1000).toISOString().split('T')[0];
+				return forecastDate === date;
+			});
+
+			if (filteredForecasts.length === 0) {
+				await interaction.followUp({ content: 'Não foi encontrado nenhum dado de previsão para a data especificada. Por favor, insira uma data válida dentro dos próximos 5 dias.', ephemeral: true });
+				return;
+			}
+
+			const fields = filteredForecasts.map(forecast => {
+				const forecastDateTime = new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+				const weatherIconUrl = `http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
+				const windEmoji = getWindDirectionEmoji(forecast.wind.deg);
+				const rainChance = forecast.pop ? `${Math.round(forecast.pop * 100)}%` : 'N/A';
+
+				return {
+					name: `${forecastDateTime}`,
+					value: `${forecast.weather[0].description}\n🌡️ ${forecast.main.temp}°C\n💨 ${forecast.wind.speed} m/s ${windEmoji}\n🌧️ ${rainChance}`,
+					inline: true,
+					icon_url: weatherIconUrl, // Add the icon URL to the field
+				};
+			});
+
+			const dayWeatherIconUrl = `http://openweathermap.org/img/wn/${filteredForecasts[0].weather[0].icon}@4x.png`;
 
 			const embed = new EmbedBuilder()
 				.setColor('#0099ff')
-				.setTitle(`Weather Forecast for ${location}`)
-				.addFields(
-					`${dateString} - ${timeString}`,
-					`Temperature: ${data.main.temp}°C\nFeels Like: ${data.main.feels_like}°C\nDescription: ${data.weather[0].description}`
-				);
-			});
+				.setTitle(`Previsão do tempo para ${location} em ${date}`)
+				.addFields(fields)
+				.setThumbnail(dayWeatherIconUrl)
+				.setTimestamp()
+				.setFooter({ text: 'Dados fornecidos por OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });
 
 			await interaction.followUp({ embeds: [embed] });
 		} catch (error) {
-			await interaction.followUp({ content: 'An error occurred while fetching the forecast data. Please try again later.', ephemeral: true });
+			await interaction.followUp({ content: 'Ocorreu um erro ao obter os dados da previsão do tempo. Por favor, tente novamente mais tarde.', ephemeral: true });
 			console.error('Error fetching forecast data:', error);
 		}
+
 		// Log command usage
-		const date = new Date();
-		const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+		const dateTime = new Date().toISOString().replace('T', ' ').split('.')[0];
 		const user = interaction.user.tag;
 		const interactionId = interaction.commandName;
 
 		console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
-		//cooldown: '1h',
-		devOnly: true,
-		//userPermissions: ['Adminstrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
+		cooldown: '30s',
+		//devOnly: true,
+		//userPermissions: [],
+		//botPermissions: [],
+		//deleted: false,
 	},
 };
+
+function getWindDirectionEmoji(degrees) {
+	const emojiDirections = ['⬆️', '↗️', '➡️', '↘️', '⬇️', '↙️', '⬅️', '↖️'];
+	const index = Math.round(degrees / 45) % 8;
+	return emojiDirections[index];
+}

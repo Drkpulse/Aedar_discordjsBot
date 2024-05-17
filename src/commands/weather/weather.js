@@ -9,40 +9,39 @@ module.exports = {
 		.setDescription('Verifica como está o tempo')
 		.addStringOption((option) =>
 			option
-				.setName('location')
-				.setDescription('Local')
+				.setName('local')
+				.setDescription('Local a pesquisar')
 				.setRequired(true)
 		),
 
 	run: async ({interaction, client, handler}) => {
 	   await interaction.deferReply({ fetchReply: true });
-	   const location = interaction.options.getString('location');
+	   const location = interaction.options.getString('local');
 		try {
 			const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${process.env.OPENWEATHERMAP_API_KEY}&units=metric`);
 			const weatherData = response.data;
 			const windEmoji = getWindDirectionEmoji(weatherData.wind.deg);
-			const weatherIcon = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png`;
+			const weatherIcon = `http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`;
 
 			const embed = new EmbedBuilder()
 				.setColor('#0099ff')
-				.setTitle(`Weather in ${weatherData.name}`)
+				.setTitle(`Tempo - ${weatherData.name}`)
 				.setDescription(weatherData.weather[0].description)
 				.setThumbnail(weatherIcon)
 				.addFields(
-					{ name: 'Temperature', value: `${weatherData.main.temp}°C`, inline: true },
-					{ name: 'Feels Like', value: `${weatherData.main.feels_like}°C`, inline: true },
-					{ name: 'Humidity', value: `${weatherData.main.humidity}%` },
-					{ name: 'Wind Speed', value: `${weatherData.wind.speed} m/s ${windEmoji}` },
-					{ name: 'Source', value: `[Website](https://openweathermap.org/city/${weatherData.id})`, inline: true },
+					{ name: 'Temperatura', value: `${weatherData.main.temp}°C`, inline: true },
+					{ name: 'Sensação', value: `${weatherData.main.feels_like}°C`, inline: true },
+					{ name: 'Humidade', value: `${weatherData.main.humidity}%` },
+					{ name: 'Vento', value: `${weatherData.wind.speed} m/s ${windEmoji}`, inline: true },
+					{ name: 'Molho', value: `[Website](https://openweathermap.org/city/${weatherData.id})`, inline: true },
 				)
 				.setTimestamp()
-				.setFooter({ text: 'Data provided by OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });
+				.setFooter({ text: 'Dados fornecidos por OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });
 
 			await interaction.followUp({ embeds: [embed] });
-			console.log(`${new Date().toISOString().replace('T', ' ').split('.')[0]} - ${interaction.user.tag} used /weather for ${location}`);
 		} catch (error) {
-			await interaction.followUp({ content: 'An error occurred while fetching weather data. Please try again later.', ephemeral: true });
-			console.error('Error fetching weather data:', error);
+			await interaction.followUp({ content: 'Ocorreu um erro ao obter os dados da previsão do tempo. Por favor, tente novamente mais tarde.', ephemeral: true });
+			console.error('Error fetching forecast data:', error);
 		}
 
 	// Log command usage
