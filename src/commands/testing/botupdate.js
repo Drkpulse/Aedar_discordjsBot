@@ -11,7 +11,7 @@ module.exports = {
 
 	run: async ({interaction, client}) => {
 		// Execute the bash script
-		exec('../../upbot.sh', (error, stdout, stderr) => {
+		exec('~/Aedar_discordjsBot/src/upbot.sh', (error, stdout, stderr) => {
 			if (error) {
 				console.error(`Error: ${error.message}`);
 				interaction.reply('Error updating the repository.');
