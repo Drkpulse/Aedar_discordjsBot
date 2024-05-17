@@ -10,7 +10,11 @@ module.exports = {
             .setColor('#0099ff')
             .setTitle('Example Embed')
             .setURL('https://discord.js.org/')
-            .setAuthor('Author Name', 'https://i.imgur.com/wSTFkRM.png', 'https://discord.js.org')
+            .setAuthor({
+                name: 'Author Name',
+                iconURL: 'https://i.imgur.com/wSTFkRM.png',
+                url: 'https://discord.js.org'
+            })
             .setDescription('This is an example embed showcasing every possible field.')
             .setThumbnail('https://i.imgur.com/wSTFkRM.png')
             .addFields(
@@ -18,11 +22,11 @@ module.exports = {
                 { name: '\u200B', value: '\u200B' }, // Blank field
                 { name: 'Inline field title', value: 'Some value here', inline: true },
                 { name: 'Inline field title', value: 'Some value here', inline: true },
+                { name: 'Inline field title', value: 'Some value here', inline: true }
             )
-            .addField('Inline field title', 'Some value here', true)
             .setImage('https://i.imgur.com/wSTFkRM.png')
             .setTimestamp()
-            .setFooter('Example Footer', 'https://i.imgur.com/wSTFkRM.png');
+            .setFooter({ text: 'Example Footer', iconURL: 'https://i.imgur.com/wSTFkRM.png' });
 
         await interaction.reply({ embeds: [exampleEmbed] });
     },
