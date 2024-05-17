@@ -13,6 +13,8 @@ module.exports = {
 	await interaction.deferReply({ ephemeral: true });
 
 	await handler.reloadCommands();
+	await handler.reloadEvents();
+	await handler.reloadValidations();
 
 	interaction.followUp({ content: 'All Reloaded', ephemeral: true });
 
@@ -25,7 +27,7 @@ module.exports = {
 	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
-		cooldown: '1h',
+		cooldown: '5s',
 		devOnly: true,
 		//userPermissions: ['Adminstrator'],
 		//botPermissions: ['BanMembers'],

@@ -61,7 +61,7 @@ module.exports = {
 				console.error('Error:', err);
 				interaction.followUp({ content: 'O bot precisa de umas férias, tenta novamente', ephemeral: true });
 			});
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
@@ -71,7 +71,7 @@ module.exports = {
 	},
 
 	options: {
-		devOnly: true,
+		//devOnly: true,
 		cooldown: '10m',
 		//userPermissions: [],
 		//botPermissions: [],

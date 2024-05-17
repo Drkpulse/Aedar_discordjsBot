@@ -8,6 +8,8 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
 		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.GuildPresences,
 	],
 });
 
@@ -18,9 +20,10 @@ new CommandKit({
 	eventsPath: `${__dirname}/events`,
 	commandsPath: `${__dirname}/commands`,
 	validationsPath: `${__dirname}/validations`,
-	//bulkRegister: true, // Cleans unusued commands and Registers all at once
+	bulkRegister: true, // Cleans unusued commands and Registers all at once
 	//skipBuiltInValidations: true, // Skips commmand options validation
 
 })
+
 
 client.login(process.env.BOT_TOKEN);

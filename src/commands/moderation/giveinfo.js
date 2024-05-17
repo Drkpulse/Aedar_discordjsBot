@@ -9,7 +9,7 @@ module.exports = {
 	run: ({ interaction, client, handler }) => {
 		const mentionedUser = interaction.targetMessage.author.toString();
 		interaction.reply(`Placeholder ${mentionedUser} para informações sobre os Patins no Porto com menção da pessoa, Só admins podem user ${mentionedUser}!`);
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
@@ -19,9 +19,9 @@ module.exports = {
 	},
 
 	options: {
-		devOnly: true,
-		userPermissions: [],
-		botPermissions: [],
-		deleted: false,
+		//devOnly: true,
+		userPermissions: ['Adminstrator'],
+		//botPermissions: [],
+		//deleted: false,
 	},
 };

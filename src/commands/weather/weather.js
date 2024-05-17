@@ -55,7 +55,7 @@ module.exports = {
 	},
 	options: {
 		cooldown: '30s',
-		devOnly: true,
+		//devOnly: true,
 		//userPermissions: [],
 		//botPermissions: [],
 		//deleted: false,

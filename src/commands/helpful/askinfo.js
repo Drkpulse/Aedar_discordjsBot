@@ -9,14 +9,14 @@ module.exports = {
 
 	run: async ({interaction, client, handler}) => {
 	interaction.reply(`Placeholder para informações sobre os Patins no Porto`);
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
 		 const interactionId = interaction.commandName;
 
 		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
-    },
+	},
 	options: {
 		cooldown: '10s',
 		//devOnly: true,

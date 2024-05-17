@@ -4,10 +4,10 @@ const axios = require('axios');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('gif')
-		.setDescription('Get a gif based on a chosen word')
+		.setDescription('Procura um "random" Gif da vasta internet')
 		.addStringOption(option =>
 			option.setName('keyword')
-				.setDescription('The keyword to search for')
+				.setDescription('Palavra-chave')
 				.setRequired(true)),
 
 	run: async ({ interaction }) => {
@@ -28,17 +28,17 @@ module.exports = {
 			console.error('Error fetching gif:', error);
 			await interaction.reply({ content: 'An error occurred while fetching the gif. Please try again later.', ephemeral: true });
 		}
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
 		 const interactionId = interaction.commandName;
 
 		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
-    },
+	},
 	options: {
 		cooldown: '10s',
-		devOnly: true,
+		//devOnly: true,
 		//userPermissions: [],
 		//botPermissions: [],
 		//deleted: false,

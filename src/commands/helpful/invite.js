@@ -9,7 +9,7 @@ module.exports = {
 
 	run: async ({interaction, client, handler}) => {
 	interaction.reply(`Para receber um invite é necessário comparecer num dos nossos eventos principais`);
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
@@ -19,7 +19,7 @@ module.exports = {
 	},
 	options: {
 		cooldown: '1m',
-		devOnly: true,
+		//devOnly: true,
 		//userPermissions: ['Adminstrator'],
 		//botPermissions: ['BanMembers'],
 		//deleted: true,

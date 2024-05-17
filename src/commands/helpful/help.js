@@ -1,105 +1,109 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('help')
-        .setDescription('Shows all available commands with descriptions and parameters'),
+	data: new SlashCommandBuilder()
+		.setName('help')
+		.setDescription('Mostra todos os commandos disponiveis'),
 
-    run: async ({ interaction, client, handler }) => {
-        await interaction.deferReply({ ephemeral: true });
+	run: async ({ interaction, client, handler }) => {
+		await interaction.deferReply({ ephemeral: true });
 
-        // List of commands categorized (add your commands here)
-        const commandCategories = {
-            Helpful: [
-                {
-                    name: 'help',
-                    description: 'Mostra esta mensagem',
-                    parameters: []
-                },
-                {
-                    name: 'info',
-                    description: 'Informação sobre os Patins no Porto',
-                    parameters: []
-                },
-                {
-                    name: 'invite',
-                    description: 'Indica-te como podes obter um invite para este Discord',
-                    parameters: []
-                },
-            ],
-            Fun: [
-                {
-                    name: 'coinflip',
-                    description: 'Atira uma bitcoin ao ar!',
-                    parameters: []
-                },
-                {
-                    name: 'pokedex',
-                    description: 'Mostra informação sobre o mundo do Pokémon',
-                    parameters: [
+		// List of commands categorized (add your commands here)
+		const commandCategories = {
+			Helpful: [
+				{
+					name: '/help',
+					description: 'Mostra esta mensagem',
+					parameters: []
+				},
+				{
+					name: '/info',
+					description: 'Informação sobre os Patins no Porto',
+					parameters: []
+				},
+				{
+					name: '/invite',
+					description: 'Indica-te como podes obter um invite para este Discord',
+					parameters: []
+				},
+			],
+			Fun: [
+				{
+					name: '/coinflip',
+					description: 'Atira uma bitcoin ao ar!',
+					parameters: []
+				},
+				{
+					name: '/pokedex',
+					description: 'Mostra informação sobre o mundo do Pokémon',
+					parameters: [
 						{ name: 'pokemon', description: 'nome do Pokémon' }
 					]
-                },
-                {
-                    name: 'gif',
-                    description: 'Procura um "random" Gif da vasta internet',
-                    parameters: [
+				},
+				{
+					name: '/gif',
+					description: 'Procura um "random" Gif da vasta internet',
+					parameters: [
 						{ name: 'prompt', description: 'Palavra para procurar' }
 					]
-                },
-            ],
-            Utility: [
-                {
-                    name: 'ping',
-                    description: 'Mostra informações acerca do Bot e do Cliente Discord',
-                    parameters: []
-                },
-            ],
-            Report: [
-                {
-                    name: 'Dá Report numa mensagem',
-                    description: 'Carrega nas opções da mensagem, menu APPS e reporta a mensagem.',
-                    parameters: []
-                },
-                {
-                    name: 'sugestao',
-                    description: 'Sugere uma ideia para os Patins no Porto',
-                    parameters: []
-                },
-                {
-                    name: 'botfeedback',
-                    description: 'Diz alguma coisa ao desenvolvedores do Bot 🧙‍♂️',
-                    parameters: []
-                },
-            ],
-            // Add more categories and commands as needed
-        };
+				},
+			],
+			Utility: [
+				{
+					name: '/ping',
+					description: 'Mostra informações acerca do Bot e do Cliente Discord',
+					parameters: []
+				},
+				{
+					name: 'Flag Translation',
+					description: 'Reaje a uma mensagem com a bandeira da lingua que pretendes',
+					parameters: []
+				},
+			],
+			Report: [
+				{
+					name: 'Dá Report numa mensagem',
+					description: 'Carrega nas opções da mensagem, menu APPS e reporta a mensagem.',
+					parameters: []
+				},
+				{
+					name: '/sugestao',
+					description: 'Sugere uma ideia para os Patins no Porto',
+					parameters: []
+				},
+				{
+					name: '/botfeedback',
+					description: 'Diz alguma coisa ao desenvolvedores do Bot 🧙‍♂️',
+					parameters: []
+				},
+			],
+			// Add more categories and commands as needed
+		};
 
 
+		const createCategoryEmbed = (category) => {
+			const embed = new EmbedBuilder()
+				.setTitle(`${category}`)
+				.setColor('#0099ff')
+				.setFooter({ text: 'Usa /nomedocomando para executares esse Comando' });
 
-        const createCategoryEmbed = (category) => {
-            const embed = new EmbedBuilder()
-                .setTitle(`${category} Comandos`)
-                .setColor('#0099ff')
-                .setFooter({ text: 'Usa /nomedocomando para executares esse Comando' });
+			const commands = commandCategories[category];
+			let description = '';
+			commands.forEach(command => {
+				description += `**${command.name}** - ${command.description}\n`;
+				if (command.parameters.length > 0) {
+					command.parameters.forEach(param => {
+						description += `  • **${param.name}**: ${param.description}\n`;
+					});
+				}
+				description += '\n';
+			});
 
-            const commands = commandCategories[category];
-            let description = '';
-            commands.forEach(command => {
-                description += `**/${command.name}** - ${command.description}\n`;
-                if (command.parameters.length > 0) {
-                    command.parameters.forEach(param => {
-                        description += `  • **${param.name}**: ${param.description}\n`;
-                    });
-                }
-                description += '\n';
-            });
+			embed.setDescription(description);
+			return embed;
+		};
 
-            embed.setDescription(description);
-            return embed;
-        };
-
-        const categoryButtons = Object.keys(commandCategories).map(category => {
+		const categoryButtons = Object.keys(commandCategories).map(category => {
 		// Add emojis to button labels
 		let emoji;
 		switch (category) {
@@ -119,45 +123,45 @@ module.exports = {
 			default:
 				emoji = '💩';
 		}
-            return new ButtonBuilder()
-                .setCustomId(category)
-                .setLabel(`${emoji} ${category}`)
-                .setStyle(ButtonStyle.Primary);
-        });
+			return new ButtonBuilder()
+				.setCustomId(category)
+				.setLabel(`${emoji} ${category}`)
+				.setStyle(ButtonStyle.Primary);
+		});
 
-        const row = new ActionRowBuilder().addComponents(categoryButtons);
+		const row = new ActionRowBuilder().addComponents(categoryButtons);
 
-        await interaction.editReply({
-            content: 'Escolhe a categoria que pretendes ver',
-            components: [row]
-        });
+		await interaction.editReply({
+			content: 'Escolhe a categoria que pretendes ver',
+			components: [row]
+		});
 
-        const filter = i => i.user.id === interaction.user.id;
-        const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 });
+		const filter = i => i.user.id === interaction.user.id;
+		const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 });
 
-        collector.on('collect', async i => {
-            const category = i.customId;
-            const embed = createCategoryEmbed(category);
-            await i.update({ embeds: [embed], components: [row] });
-        });
+		collector.on('collect', async i => {
+			const category = i.customId;
+			const embed = createCategoryEmbed(category);
+			await i.update({ embeds: [embed], components: [row] });
+		});
 
-        collector.on('end', collected => {
-            console.log(`Collected ${collected.size} interactions.`);
-        });
+		collector.on('end', collected => {
+			console.log(`Collected ${collected.size} interactions.`);
+		});
 
-         // Log command usage
+		 // Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
 		 const interactionId = interaction.commandName;
 
 		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
-    },
-    options: {
-        cooldown: '5s',
-        devOnly: true,
-        //userPermissions: ['Administrator'],
-        //botPermissions: ['BanMembers'],
-        //deleted: true,
-    },
+	},
+	options: {
+		cooldown: '5s',
+		//devOnly: true,
+		//userPermissions: ['Administrator'],
+		//botPermissions: ['BanMembers'],
+		//deleted: true,
+	},
 };

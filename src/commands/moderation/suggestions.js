@@ -62,7 +62,7 @@ module.exports = {
 				interaction.followUp({ content: 'Ups, alguem tropeçou numa ficha', ephemeral: true });
 			});
 
-        // Log command usage
+		// Log command usage
 		 const date = new Date();
 		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 		 const user = interaction.user.tag;
@@ -72,7 +72,7 @@ module.exports = {
 	},
 
 	options: {
-		devOnly: true,
+		//devOnly: true,
 		cooldown: '10m',
 		//userPermissions: [],
 		//botPermissions: [],
