@@ -9,7 +9,7 @@ module.exports = {
 	run: async ({ interaction, client, handler }) => {
 		try {
 			// Defer the reply to indicate that the bot is processing
-			await interaction.deferReply();
+			await interaction.deferReply({ ephemeral: true });
 
 			// Send the reported message to a specific channel
 			const reportChannelId = process.env.REPORT_CHANNELID;

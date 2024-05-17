@@ -53,13 +53,15 @@ module.exports = async (reaction, user, client) => {
 			.setFooter({ text: `Requested by ${user.tag}`, iconURL: user.displayAvatarURL({ dynamic: true }) });
 
 		await message.reply({ embeds: [embed] });
-	} catch (error) {
-		console.error('Error handling reaction:', error);
-		await reaction.message.reply('Sorry, I couldn\'t translate the message.');
-	}
+
 	// Log command usage
 	const date = new Date();
 	const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 
 	console.log(`[${dateTime}] User: ${user.tag} | Interaction: Reaction Translation to ${targetLanguage}`);
+
+	} catch (error) {
+		console.error('Error handling reaction:', error);
+		await reaction.message.reply('Sorry, I couldn\'t translate the message.');
+	}
 };
