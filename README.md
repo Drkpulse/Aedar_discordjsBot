@@ -19,13 +19,13 @@ This bot is designed to enhance the Patins No Porto discord server, and other fa
 1. Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/Drkpulse/jsdiscord.git
+git clone https://github.com/Drkpulse/Aedar_discordjsBot.git
 ```
 
 2. Navigate to the project directory:
 
 ```bash
-cd jsdiscord
+cd Aedar_discordjsBot
 ```
 
 3. Install dependencies:
