@@ -35,7 +35,7 @@ module.exports = ({ interaction, commandObj }) => {
 			// Select a random funny message
 			const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
-			interaction.reply({ content: `${randomMessage} Para este comando faltam: ${remainingTimeStr}.`, ephemeral: true });
+			interaction.reply({ content: `${randomMessage} Tens de esperar: ${remainingTimeStr}.`, ephemeral: true });
 
 			return true; // Indicate that the command execution should be halted
 		} else {

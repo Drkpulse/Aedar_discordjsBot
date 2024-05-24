@@ -29,7 +29,7 @@ module.exports = {
 			],
 			Fun: [
 				{
-					name: '/coinflip',
+					name: '/coinflip <:new_feature:1243541667076640889> ',
 					description: 'Atira uma bitcoin ao ar!',
 					parameters: []
 				},
@@ -55,14 +55,14 @@ module.exports = {
 					parameters: []
 				},
 				{
-					name: '/weather',
+					name: '/weather <:new_feature:1243541667076640889> ',
 					description: 'Verifica como está o tempo',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' }
 					]
 				},
 				{
-					name: '/forecast',
+					name: '/forecast <:new_feature:1243541667076640889> ',
 					description: 'Obtem a previsão do tempo para um dia específico dos próximos 5 dias',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' },
@@ -86,20 +86,39 @@ module.exports = {
 					description: 'Sugere uma ideia para os Patins no Porto',
 					parameters: []
 				},
+			],
+			Bot: [
 				{
-					name: '/botfeedback',
+					name: 'Bot Latency',
+					description: `A latência do bot é ${client.ws.ping}ms.`,
+					parameters: []
+				},
+				{
+					name: '/botfeedback <a:hiwhoogle:1243541665390657618> ',
 					description: 'Diz alguma coisa ao desenvolvedores do Bot 🧙‍♂️',
 					parameters: []
 				},
+				{
+					name: 'Support <:server:1243541657711022172> ',
+					description: '[Support the Bot](https://supportbotlink.com)',
+					parameters: []
+				}
 			],
 			// Add more categories and commands as needed
 		};
 
+		const categoryColors = {
+			Helpful: '#009933',
+			Fun: '#cc00cc',
+			Utility: '#ff9900',
+			Report: '#990000',
+			Bot: '#00ccff'
+		};
 
 		const createCategoryEmbed = (category) => {
 			const embed = new EmbedBuilder()
 				.setTitle(`${category}`)
-				.setColor('#0099ff')
+				.setColor(categoryColors[category] || '#0099ff')
 				.setFooter({ text: 'Usa /nomedocomando para executares esse Comando' });
 
 			const commands = commandCategories[category];
@@ -119,29 +138,36 @@ module.exports = {
 		};
 
 		const categoryButtons = Object.keys(commandCategories).map(category => {
-		// Add emojis to button labels
-		let emoji;
-		switch (category) {
-			case 'Helpful':
-				emoji = '👉';
-				break;
-			case 'Fun':
-				emoji = '🪅';
-				break;
-			case 'Utility':
-				emoji = '⚙️';
-				break;
-			case 'Report':
-				emoji = '🪄';
-				break;
-			// Add more cases for other categories if needed
-			default:
-				emoji = '💩';
-		}
+		const commandCategories = {
+			Helpful: {
+				emoji: '👉',
+				style: ButtonStyle.Success
+			},
+			Fun: {
+				emoji: '🦄',
+				style: ButtonStyle.Primary
+			},
+			Utility: {
+				emoji: '⚙️',
+				style: ButtonStyle.Primary
+			},
+			Report: {
+				emoji: '🪄',
+				style: ButtonStyle.Danger
+			},
+			Bot: {
+				emoji: '🤖',
+				style: ButtonStyle.Secondary
+			},
+			// Add more categories as needed
+		};
+
+			const { emoji, style } = commandCategories[category];
+
 			return new ButtonBuilder()
 				.setCustomId(category)
 				.setLabel(`${emoji} ${category}`)
-				.setStyle(ButtonStyle.Primary);
+				.setStyle(style)
 		});
 
 		const row = new ActionRowBuilder().addComponents(categoryButtons);

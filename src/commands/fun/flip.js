@@ -12,10 +12,10 @@ module.exports = {
         const headsEmoji = `<:bit_head:1240722456873009274>`;
         const tailsEmoji = `<:bit_tail:1240722455530700921>`;
 
-        const outcome = Math.random() <= 0.5 ? 'cara' : 'croa';
-        const emoji = outcome === 'cara' ? headsEmoji : tailsEmoji;
+        const outcome = Math.random() <= 0.5 ? 'Cara' : 'Croa';
+        const emoji = outcome === 'Cara' ? headsEmoji : tailsEmoji;
 
-        await interaction.editReply(`Saiu ${outcome} ${emoji}`);
+        await interaction.editReply(`<:coinflip:1243537240815304766> A Bitcoin foi à blockchain e saiu **${outcome} ${emoji}**`);
 
         // Log command usage
         const date = new Date();
