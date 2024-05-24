@@ -4,25 +4,41 @@ module.exports = async (client, handler) => {
 	// Array of status configurations
 	const statuses = [
 		{
-			name: 'compiling code 🖥️',
+			name: 'Aprender Slalom 🛼',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'hacking the mainframe 🕵️‍♂️',
+			name: 'Reels do Patins no Porto 🕵️‍♂️',
 			type: ActivityType.Watching,
 		},
 		{
-			name: 'exploring infinite loops 🔁',
+			name: 'Como aprender a patinar em 3H',
 			type: ActivityType.Streaming,
 			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 		},
 		{
-			name: 'debugging life 🐞',
+			name: 'A ouvir musica da Teresa',
 			type: ActivityType.Listening,
 		},
 		{
-			name: 'learning binary 🤖',
-			type: ActivityType.CustomStatus,
+			name: 'A fazer umas manobras fixes 🛼',
+			type: ActivityType.Custom,
+		},
+		{
+			name: 'A limpar os rolamentos 🧼',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'A patinar no Porto 🛼',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'A espera da Ride de Sabado',
+			type: ActivityType.Custom,
+		},
+		{
+			name: 'Pelos prémios do Ano Patins no Porto 🎁',
+			type: ActivityType.Competing,
 		},
 	];
 
@@ -47,8 +63,8 @@ module.exports = async (client, handler) => {
 
 	setBotPresence(); // Set initial bot presence
 
-	// Set bot presence every 10 seconds
+	// Set bot presence every 60 seconds
 	setInterval(() => {
 		setBotPresence();
-	}, 10000);
+	}, 60000);
 };

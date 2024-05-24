@@ -71,7 +71,7 @@ module.exports = {
 				},
 				{
 					name: 'Flag Translation',
-					description: 'Reaje a uma mensagem com a bandeira da lingua que pretendes',
+					description: 'React with the flag you want to translate the message to',
 					parameters: []
 				},
 			],
@@ -100,7 +100,7 @@ module.exports = {
 				},
 				{
 					name: 'Support <:server:1243541657711022172> ',
-					description: '[Support the Bot](https://supportbotlink.com)',
+					description: '[Ajuda o Criador](https://ko-fi.com/aedar)',
 					parameters: []
 				}
 			],
