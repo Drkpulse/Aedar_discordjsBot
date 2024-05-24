@@ -24,6 +24,7 @@
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
     "node-fetch": "^3.3.2",
+    "node-schedule": "^2.1.1",
     "nodemon": "^3.1.0",
     "translate-google": "^1.5.0"
   }
