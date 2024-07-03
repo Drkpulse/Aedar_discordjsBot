@@ -29,13 +29,13 @@ module.exports = {
 			],
 			Fun: [
 				{
-					name: '/coinflip <:new_feature:1243541667076640889> ',
+					name: '/coinflip <:new_badge:1244055418041532447>  ',
 					description: 'Atira uma bitcoin ao ar!',
 					parameters: []
 				},
 				{
 					name: '/pokedex',
-					description: 'Mostra informação sobre o mundo do Pokémon',
+					description: 'Mostra informação sobre o mundo do <a:pokeball:1244057132232478770> Pokémon',
 					parameters: [
 						{ name: 'pokemon', description: 'nome do Pokémon' }
 					]
@@ -55,14 +55,14 @@ module.exports = {
 					parameters: []
 				},
 				{
-					name: '/weather <:new_feature:1243541667076640889> ',
+					name: '/weather <:new_badge:1244055418041532447>  ',
 					description: 'Verifica como está o tempo',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' }
 					]
 				},
 				{
-					name: '/forecast <:new_feature:1243541667076640889> ',
+					name: '/forecast <:new_badge:1244055418041532447>  ',
 					description: 'Obtem a previsão do tempo para um dia específico dos próximos 5 dias',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' },
@@ -70,20 +70,20 @@ module.exports = {
 					]
 				},
 				{
-					name: 'Flag Translation',
+					name: '<:googletranslate:1244058891298410587> Flag Translation',
 					description: 'React with the flag you want to translate the message to',
 					parameters: []
 				},
 			],
 			Report: [
 				{
-					name: 'Dá Report numa mensagem',
+					name: '<:reportmessage:1244055410445385800> Dá Report numa mensagem <:reportmessage:1244055410445385800> ',
 					description: 'Carrega nas opções da mensagem, menu APPS e reporta a mensagem.',
 					parameters: []
 				},
 				{
 					name: '/sugestao',
-					description: 'Sugere uma ideia para os Patins no Porto',
+					description: 'Sugere uma ideia <a:uau:759825999495561218> para os Patins no Porto',
 					parameters: []
 				},
 			],
@@ -94,8 +94,8 @@ module.exports = {
 					parameters: []
 				},
 				{
-					name: '/botfeedback <a:hiwhoogle:1243541665390657618> ',
-					description: 'Diz alguma coisa ao desenvolvedores do Bot 🧙‍♂️',
+					name: '/botfeedback ',
+					description: 'Diz <a:hiwhoogle:1243541665390657618> alguma coisa ao desenvolvedores do Bot 🧙‍♂️',
 					parameters: []
 				},
 				{
@@ -119,7 +119,7 @@ module.exports = {
 			const embed = new EmbedBuilder()
 				.setTitle(`${category}`)
 				.setColor(categoryColors[category] || '#0099ff')
-				.setFooter({ text: 'Usa /nomedocomando para executares esse Comando' });
+				.setFooter({ text: 'Usa ** /nomedocomando ** para usar esse Comando' });
 
 			const commands = commandCategories[category];
 			let description = '';
@@ -181,6 +181,7 @@ module.exports = {
 		const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60000 });
 
 		collector.on('collect', async i => {
+			collector.resetTimer();
 			const category = i.customId;
 			const embed = createCategoryEmbed(category);
 			await i.update({ embeds: [embed], components: [row] });
@@ -189,20 +190,8 @@ module.exports = {
 		collector.on('end', collected => {
 			console.log(`Collected ${collected.size} interactions.`);
 		});
-
-		 // Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		cooldown: '5s',
-		//devOnly: true,
-		//userPermissions: ['Administrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
 	},
 };

@@ -73,13 +73,6 @@ module.exports = (message, client) => {
 	}
 }
 
-
-
-	if (content.includes('preciso de inspiração')) {
-		// Reply to the message
-		message.reply('Alguém disse banana! 🍌 Toma lá uma banana digital!');
-	}
-
 	if (content.includes('não gosto de patinar')) {
 		// Reply to the message with a fake kick message
 		message.reply('${message.author} foi removido do servidor por não gostar de patinar.');

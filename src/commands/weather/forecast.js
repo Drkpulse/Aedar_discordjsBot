@@ -51,7 +51,7 @@ module.exports = {
 			});
 
 			if (filteredForecasts.length === 0) {
-				await interaction.followUp({ content: 'Não foi encontrado nenhum dado de previsão para a data especificada. Por favor, insira uma data válida dentro dos próximos 5 dias.', ephemeral: true });
+				await interaction.followUp({ content: 'Não foi encontrado nenhum dado de previsão para a data especificada. Por favor, insere uma data válida dentro dos próximos 5 dias.', ephemeral: true });
 				return;
 			}
 
@@ -84,20 +84,9 @@ module.exports = {
 			await interaction.followUp({ content: 'Ocorreu um erro ao obter os dados da previsão do tempo. Por favor, tente novamente mais tarde.', ephemeral: true });
 			console.error('Error fetching forecast data:', error);
 		}
-
-		// Log command usage
-		const dateTime = new Date().toISOString().replace('T', ' ').split('.')[0];
-		const user = interaction.user.tag;
-		const interactionId = interaction.commandName;
-
-		console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		cooldown: '30s',
-		//devOnly: true,
-		//userPermissions: [],
-		//botPermissions: [],
-		//deleted: false,
 	},
 };
 

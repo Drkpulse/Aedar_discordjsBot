@@ -1,7 +1,7 @@
 const { version } = require('../../../package.json');
 const axios = require('axios');
 const os = require('os');
-const { execSync } = require('child_process');
+require('dotenv').config();
 
 module.exports = async (client, handler) => {
 	console.log(`\x1b[35m╭────────────────────────────────────\x1b[37m`);
@@ -15,9 +15,7 @@ module.exports = async (client, handler) => {
 	console.log(`\x1b[35m╰─────────────────────────────────────\x1b[37m\n`);
 };
 
-
 async function printSystemStats() {
-
 	// Print CPU usage
 	const cpuUsage = process.cpuUsage();
 	const elapsedTime = process.uptime();
@@ -64,5 +62,3 @@ function formatElapsedTime(seconds) {
 	const remainingSeconds = Math.floor(seconds % 60);
 	return `${hours}h ${minutes}m ${remainingSeconds}s`;
 }
-
-
