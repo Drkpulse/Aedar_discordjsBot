@@ -61,22 +61,10 @@ module.exports = {
 				console.error('Error:', err);
 				interaction.followUp({ content: 'Ups, alguem tropeçou numa ficha', ephemeral: true });
 			});
-
-		// Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {
-		//devOnly: true,
-		cooldown: '10m',
-		//userPermissions: [],
-		//botPermissions: [],
-		//deleted: false,
+		cooldown: '2m',
 	},
 };
 

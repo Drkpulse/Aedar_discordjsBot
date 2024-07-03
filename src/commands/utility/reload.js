@@ -27,10 +27,6 @@ module.exports = {
 	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
-		cooldown: '5s',
 		devOnly: true,
-		//userPermissions: ['Adminstrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
 	},
   };

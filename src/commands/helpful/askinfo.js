@@ -8,20 +8,9 @@ module.exports = {
 	},
 
 	run: async ({interaction, client, handler}) => {
-	interaction.reply(`Placeholder para informações sobre os Patins no Porto`);
-		// Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+	interaction.reply(`Os Patins no Porto são um grupo de pessoas que se juntam para patinar na cidade do Porto.\nRedes Socias em que estamos presentes:\nInstagram: https://www.instagram.com/patinsnoporto/`);
 	},
 	options: {
 		cooldown: '10s',
-		//devOnly: true,
-		//userPermissions: ['Adminstrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
 	},
   };

@@ -20,20 +20,9 @@ module.exports = {
 
 		await interaction.editReply(response);
 
-		// Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		cooldown: '1m',
-		//devOnly: true,
-		//userPermissions: ['Administrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
 	},
 };
 

@@ -44,24 +44,18 @@ module.exports = {
 
 		const filter = (interaction) => interaction.customId === `myModal-${interaction.user.id}`;
 
-		interaction
-		  .awaitModalSubmit({ filter, time: 60_000})
-		  .then((modalInteraction) => {
+		interaction.awaitModalSubmit({ filter, time: 60_000}).then((modalInteraction) => {
 			const favoriteColorValue = modalInteraction.fields.getTextInputValue('favoriteColorInput');
 			const hobbiesValue = modalInteraction.fields.getTextInputValue('hobbiesInput');
 
 			modalInteraction.reply(`Your favorite color: ${favoriteColorValue}\nYour hobbies: ${hobbiesValue}`);
-		  })
-		  .catch((err) => {
+		})
+		.catch((err) => {
 			console.log(err);
-		  })
+		})
 	},
 
 	options: {
-		//cooldown: '1h',
 		devOnly: true,
-		//userPermissions: ['Adminstrator'],
-		//botPermissions: ['BanMembers'],
-		//deleted: true,
 	},
 };

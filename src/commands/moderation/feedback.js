@@ -61,13 +61,6 @@ module.exports = {
 				console.error('Error:', err);
 				interaction.followUp({ content: 'O bot precisa de umas férias, tenta novamente', ephemeral: true });
 			});
-		// Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {
