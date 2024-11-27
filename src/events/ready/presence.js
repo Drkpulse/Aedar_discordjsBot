@@ -40,6 +40,38 @@ module.exports = async (client, handler) => {
 			name: 'Pelos prémios do Ano Patins no Porto 🎁',
 			type: ActivityType.Competing,
 		},
+		{
+			name: 'Treino de Slalom com amigos 🛼',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'Assistindo a competições de patinagem 🎥',
+			type: ActivityType.Watching,
+		},
+		{
+			name: 'Criando uma playlist para patinar 🎶',
+			type: ActivityType.Listening,
+		},
+		{
+			name: 'Desafiando amigos para manobras 🛼',
+			type: ActivityType.Custom,
+		},
+		{
+			name: 'Ajustando os patins para melhor desempenho 🔧',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'Explorando novas pistas de patinagem 🌍',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'Preparando-se para a competição de patins 🏆',
+			type: ActivityType.Custom,
+		},
+		{
+			name: 'Participando de eventos de patinagem 🎉',
+			type: ActivityType.Competing,
+		},
 	];
 
 	const setBotPresence = () => {
