@@ -17,7 +17,7 @@ module.exports = {
 
 		// Introduce suspense with a delay
 		setTimeout(async () => {
-			const outcome = Math.random() <= 0.5 ? 'Cara' : 'Croa';
+			const outcome = Math.random() <= 0.5 ? 'Cara' : 'Coroa';
 			const emoji = outcome === 'Cara' ? headsEmoji : tailsEmoji;
 
 			// Reveal the outcome after the delay
