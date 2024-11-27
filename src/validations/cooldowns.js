@@ -29,7 +29,17 @@ module.exports = ({ interaction, commandObj }) => {
 				"Calma! O bot está na pausa.",
 				"Ops! Parece que o bot está a fazer greve.",
 				"Atentação até o bot precisa de intervalos.",
-				"Estás a ir rápido demais, a policia do discord ainda te apanha"
+				"Estás a ir rápido demais, a policia do discord ainda te apanha",
+				"Parece que o bot foi para um retiro espiritual!",
+				"O bot está a recarregar as baterias, por favor aguarde...",
+				"Atenção: o bot entrou em modo de poupança de bateria!",
+				"O bot está a fazer yoga, precisa de um momento de zen.",
+				"Desculpa, o bot está a fazer uma maratona de séries!",
+				"O bot saiu para tomar um café, mas já volta!",
+				"Parece que o bot está a fazer uma pausa para o lanche.",
+				"O bot foi dar uma volta no parque, precisa de ar fresco.",
+				"Atenção: o bot está a meditar, silêncio, por favor!",
+				"O bot está a fazer uma pausa dramática, não interrompa!"
 			];
 
 			// Select a random funny message
