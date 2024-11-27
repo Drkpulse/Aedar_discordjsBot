@@ -29,7 +29,7 @@ module.exports = {
 			],
 			Fun: [
 				{
-					name: '/coinflip <:new_badge:1244055418041532447>  ',
+					name: '/coinflip <:UPDATE:1311443671773741108> ',
 					description: 'Atira uma bitcoin ao ar!',
 					parameters: []
 				},
@@ -47,6 +47,30 @@ module.exports = {
 						{ name: 'prompt', description: 'Palavra para procurar' }
 					]
 				},
+				{
+					name: '/blackjack <:new_badge:1311442095051116666> ',
+					description: 'Joga Blackjack contra o Bot',
+					parameters: []
+				},
+				{
+					name: '/eightball <:new_badge:1311442095051116666> ',
+					description: 'Faz uma pergunta e a 8ball responde!',
+					parameters: [
+						{ name: 'Pergunta', description: 'Questão que queres colocar' }
+					]
+				},
+				{
+					name: '/yesno <:new_badge:1311442095051116666> ',
+					description: 'Recebe uma resposta aleatória de "sim" ou "não"',
+					parameters: []
+				},
+				{
+					name: '/rps <:new_badge:1311442095051116666> ',
+					description: 'Joga Pedra, Papel ou Tesoura contra o Bot ou contra outro jogador',
+					parameters: [
+						{ name: 'Jogador', description: 'Jogador que queres jogar contra' }
+					]
+				},
 			],
 			Utility: [
 				{
@@ -55,14 +79,14 @@ module.exports = {
 					parameters: []
 				},
 				{
-					name: '/weather <:new_badge:1244055418041532447>  ',
+					name: '/weather <:UPDATE:1311443671773741108> ',
 					description: 'Verifica como está o tempo',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' }
 					]
 				},
 				{
-					name: '/forecast <:new_badge:1244055418041532447>  ',
+					name: '/forecast <:UPDATE:1311443671773741108> ',
 					description: 'Obtem a previsão do tempo para um dia específico dos próximos 5 dias',
 					parameters: [
 						{ name: 'Local', description: 'Local a pesquisar' },
