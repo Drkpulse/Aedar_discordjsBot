@@ -26,28 +26,6 @@ module.exports = (message, client) => {
 		message.reply('https://youtu.be/0_2zoei3-xg');
 	}
 
-	// Array of Shrek movie quotes
-	const shrekQuotes = [
-			"In the morning, I'm making waffles!",
-			"Some of you may die, but that is a sacrifice I am willing to make.",
-			"Ogres are like onions.",
-			"Donkey, two things okay? Shut... up.",
-			"I live in a swamp! I put up signs! I'm a terrifying ogre! What do I have to do to get a little privacy?",
-			// Add more Shrek quotes as needed
-	];
-
-	// Check if the message contains the word "shrek"
-	if (content.includes('shrek')) {
-		// Select a random quote from the array
-		const randomQuote = shrekQuotes[Math.floor(Math.random() * shrekQuotes.length)];
-
-		// Reply to the message with the random quote
-		message.reply(randomQuote);
-
-		// Stop the event loop
-		return true;
-	}
-
  //		************************ BANANA ************************
 
  if (content.includes('banana')) {
@@ -184,22 +162,30 @@ if (content.includes('não gosto de patinar')) {
 
 // Function to check if a link is malicious using VirusTotal API
 async function checkMaliciousLink(url, message) {
-  try {
-	  const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${Buffer.from(url).toString('base64')}`, {
-		  headers: {
-			  'x-apikey': VIRUSTOTAL_API_KEY
-		  }
+	try {
+	  // Properly encode the URL
+	  const encodedUrl = Buffer.from(url).toString('base64').replace(/=+$/, '');
+
+	  // Send the request to VirusTotal
+	  const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
+		headers: {
+		  'x-apikey': VIRUSTOTAL_API_KEY,
+		},
 	  });
 
-	  // Assuming the API returns a JSON object with a 'data' field containing the 'attributes'
+	  // Extract the malicious count
 	  const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
 
 	  if (maliciousCount > 0) {
-		  message.reply(`Warning: The link you posted (${url}) is potentially malicious!`);
+		message.reply(`**ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso!`);
 	  }
-  } catch (error) {
-	  console.error('Error checking link:', error);
-	  message.reply('There was an error checking the link. Please try again later.');
-  }
-};
+	} catch (error) {
+	  console.error('Error checking link:', error.response?.status || error.message);
+	  if (error.response?.status === 404) {
+		console.error(`URL not found: ${url}`);
+	  }
+	  message.reply('Não consegui verificar este link');
+	}
+  };
+
 
