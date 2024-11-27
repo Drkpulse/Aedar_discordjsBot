@@ -12,10 +12,17 @@ module.exports = {
 		const headsEmoji = `<:bit_head:1240722456873009274>`;
 		const tailsEmoji = `<:bit_tail:1240722455530700921>`;
 
-		const outcome = Math.random() <= 0.5 ? 'Cara' : 'Croa';
-		const emoji = outcome === 'Cara' ? headsEmoji : tailsEmoji;
+		// Initial message to indicate the coin is being flipped
+		await interaction.editReply(`<:coinflip:1243537240815304766> A Bitcoin está a ser minerada...`);
 
-		await interaction.editReply(`<:coinflip:1243537240815304766> A Bitcoin foi à blockchain e saiu **${outcome} ${emoji}**`);
+		// Introduce suspense with a delay
+		setTimeout(async () => {
+			const outcome = Math.random() <= 0.5 ? 'Cara' : 'Croa';
+			const emoji = outcome === 'Cara' ? headsEmoji : tailsEmoji;
+
+			// Reveal the outcome after the delay
+			await interaction.editReply(`<:coinflip:1243537240815304766> A Bitcoin que saiu da blockchain é **${outcome} ${emoji}**`);
+		}, 3000); // 3000 milliseconds = 3 seconds delay
 
 	},
 	options: {
