@@ -1,25 +1,26 @@
-
 const { exec } = require('child_process');
+const path = require('path');
 
 module.exports = {
-	data:{
+	data: {
 		name: 'botupdate',
 		description: 'Update the Git repository and start nodemon',
 	},
 
+	run: async ({ interaction, client }) => {
+		// Define the path to the bash script
+		const scriptPath = path.join(__dirname, 'src', 'upbot.sh'); // Adjust this path as necessary
 
-
-	run: async ({interaction, client}) => {
 		// Execute the bash script
-		exec('~/Aedar_discordjsBot/src/upbot.sh', (error, stdout, stderr) => {
+		exec(scriptPath, (error, stdout, stderr) => {
 			if (error) {
 				console.error(`Error: ${error.message}`);
-				interaction.reply('Error updating the repository.');
+				interaction.reply('Error updating the repository: ' + error.message);
 				return;
 			}
 			if (stderr) {
 				console.error(`Error: ${stderr}`);
-				interaction.reply('Error updating the repository.');
+				interaction.reply('Error updating the repository: ' + stderr);
 				return;
 			}
 			console.log(`Script output: ${stdout}`);
@@ -30,4 +31,3 @@ module.exports = {
 		devOnly: true,
 	},
 };
-
