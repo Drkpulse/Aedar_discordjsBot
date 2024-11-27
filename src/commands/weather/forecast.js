@@ -61,13 +61,28 @@ module.exports = {
 				const windEmoji = getWindDirectionEmoji(forecast.wind.deg);
 				const rainChance = forecast.pop ? `${Math.round(forecast.pop * 100)}%` : 'N/A';
 
+				// Create a value string only if the data is valid
+				const valueParts = [];
+				if (forecast.weather[0].description) {
+					valueParts.push(forecast.weather[0].description);
+				}
+				if (forecast.main.temp !== undefined) {
+					valueParts.push(`🌡️ ${forecast.main.temp}°C`);
+				}
+				if (forecast.wind.speed !== undefined) {
+					valueParts.push(`💨 ${forecast.wind.speed} m/s ${windEmoji}`);
+				}
+				if (rainChance !== 'N/A') {
+					valueParts.push(`🌧️ ${rainChance}`);
+				}
+
 				return {
 					name: `${forecastDateTime}`,
-					value: `${forecast.weather[0].description}\n🌡️ ${forecast.main.temp}°C\n💨 ${forecast.wind.speed} m/s ${windEmoji}\n🌧️ ${rainChance}`,
+					value: valueParts.join('\n'), // Join valid parts
 					inline: true,
 					icon_url: weatherIconUrl, // Add the icon URL to the field
 				};
-			});
+			}).filter(field => field.value); // Filter out any fields with no value
 
 			const dayWeatherIconUrl = `http://openweathermap.org/img/wn/${filteredForecasts[0].weather[0].icon}@4x.png`;
 
