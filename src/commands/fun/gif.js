@@ -14,7 +14,7 @@ module.exports = {
 		const keyword = interaction.options.getString('keyword');
 
 		try {
-			const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_API}&tag=${keyword}&rating=g`);
+			const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${process.env.GIPHY_API}&tag=${keyword}&rating=pg`);
 			const gifUrl = response.data;
 
 			console.log(response.data.data.embed_url);
