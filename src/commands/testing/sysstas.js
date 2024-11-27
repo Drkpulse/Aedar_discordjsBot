@@ -7,7 +7,7 @@ module.exports = {
 		description: 'Print system statistics',
 	},
 
-		run: async ({interaction, client, handler}) => {
+	run: async ({ interaction, client, handler }) => {
 		await interaction.deferReply();
 
 		// Get total system memory and free memory
@@ -33,12 +33,12 @@ module.exports = {
 		const response = `RAM Usage: ${ramUsage}\nCPU Usage Percentage: ${cpuUsagePercentage}%\nCPU Temperature: ${cpuTemperature}`;
 		await interaction.editReply(response);
 
-	// Log command usage
-	const dateTime = new Date().toISOString();
-	const user = interaction.user.tag;
-	const interactionId = interaction.commandName;
+		// Log command usage
+		const dateTime = new Date().toISOString();
+		const user = interaction.user.tag;
+		const interactionId = interaction.commandName;
 
-	console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
+		console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 	options: {
 		devOnly: true,
