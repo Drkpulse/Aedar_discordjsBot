@@ -99,8 +99,8 @@ module.exports = {
 					parameters: []
 				},
 				{
-					name: 'Support <:server:1243541657711022172> ',
-					description: '[Ajuda o Criador](https://ko-fi.com/aedar)',
+					name: 'Server <:server:1243541657711022172> ',
+					description: 'Obrigado por usarem o Bot',
 					parameters: []
 				}
 			],
