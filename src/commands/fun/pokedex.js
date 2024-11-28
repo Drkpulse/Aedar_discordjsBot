@@ -19,7 +19,6 @@ module.exports = {
 		const response = await pokedex(pokemon);
 
 		await interaction.editReply(response);
-
 	},
 	options: {
 		cooldown: '1m',
@@ -36,31 +35,26 @@ async function pokedex(pokemon) {
 
 		const json = response.data[0];
 
+		// Constructing the response in the desired format
+		const previousEvolutions = json.family.evolutionLine.slice(0, -1).join(', ') || 'None';
+		const nextEvolutions = json.family.evolutionLine.slice(1).join(', ') || 'None';
+		const weaknesses = json.weaknesses.length > 0 ? json.weaknesses.join(', ') : 'None';
+		const resistances = json.resistances.length > 0 ? json.resistances.join(', ') : 'None';
+		const immunities = json.immunities.length > 0 ? json.immunities.join(', ') : 'None';
+
+		const description = json.description || 'No description available.';
+
 		const embed = new EmbedBuilder()
-			.setTitle(`Pokédex - ${json.name}`)
+			.setTitle(`Gen ${json.gen} - ${json.name} #${json.number}`)
 			.setColor('#FF0000')
-			.setThumbnail(json.sprite)
-			.setDescription(
-				`
-				♢ **ID**: ${json.number}
-				♢ **Name**: ${json.name}
-				♢ **Species**: ${json.species}
-				♢ **Type(s)**: ${json.types.join(', ')}
-				♢ **Abilities (normal)**: ${json.abilities.normal.join(', ')}
-				♢ **Abilities (hidden)**: ${json.abilities.hidden.join(', ')}
-				♢ **Egg group(s)**: ${json.eggGroups.join(', ')}
-				♢ **Gender**: ${json.gender}
-				♢ **Height**: ${json.height} feet
-				♢ **Weight**: ${json.weight} lbs
-				♢ **Current Evolution Stage**: ${json.family.evolutionStage}
-				♢ **Evolution Line**: ${json.family.evolutionLine.join(' -> ')}
-				♢ **Is Starter?**: ${json.starter ? 'Yes' : 'No'}
-				♢ **Is Legendary?**: ${json.legendary ? 'Yes' : 'No'}
-				♢ **Is Mythical?**: ${json.mythical ? 'Yes' : 'No'}
-				♢ **Generation**: ${json.gen}
-				`
-			)
-			.setFooter({ text: json.description });
+			.setDescription(`
+				♢ **Previous Evolutions**: ${previousEvolutions}
+				♢ **Next Evolutions**: ${nextEvolutions}
+				♢ **Weaknesses**: ${weaknesses}
+				♢ **Resistances**: ${resistances}
+				♢ **Immunities**: ${immunities}
+				♢ **Description**: ${description}
+			`);
 
 		return { embeds: [embed] };
 	} catch (error) {
