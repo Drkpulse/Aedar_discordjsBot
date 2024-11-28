@@ -148,26 +148,43 @@ if (content.includes('não gosto de patinar')) {
 		return true;
 	}
 
-  // Check for links in the message
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const urls = content.match(urlRegex);
+// Check for links in the message
+const urlRegex = /(https?:\/\/[^\s]+)/g;
+const urls = content.match(urlRegex);
 
-  if (urls) {
-	  // Check each URL for malicious content
-	  urls.forEach(url => {
-		  checkMaliciousLink(url, message);
-	  });
-  }
+// List of domains to ignore
+const ignoredDomains = [
+	'discord.com',
+	'instagram.com',
+	'facebook.com',
+	'youtube.com',
+	'google.com',
+	'tiktok.com',
+];
+
+if (urls) {
+	// Check each URL for malicious content
+	urls.forEach(url => {
+		const urlObj = new URL(url);
+		const domain = urlObj.hostname;
+
+		// Check if the domain is in the ignored list
+		if (!ignoredDomains.includes(domain)) {
+			checkMaliciousLink(url, message);
+		}
+	});
+}
 };
 
 // Function to check if a link is malicious using VirusTotal API
 async function checkMaliciousLink(url, message) {
+	const errorChannelId = process.env.ERROR_CHANNELID;
 	try {
-	  // Properly encode the URL
-	  const encodedUrl = Buffer.from(url).toString('base64').replace(/=+$/, '');
+	// Properly encode the URL
+	const encodedUrl = Buffer.from(url).toString('base64').replace(/=+$/, '');
 
-	  // Send the request to VirusTotal
-	  const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
+	// Send the request to VirusTotal
+	const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
 		headers: {
 		  'x-apikey': VIRUSTOTAL_API_KEY,
 		},
@@ -177,14 +194,15 @@ async function checkMaliciousLink(url, message) {
 	  const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
 
 	  if (maliciousCount > 0) {
-		message.reply(`**ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso!`);
+		const reportLink = `https://www.virustotal.com/gui/url/${encodedUrl}`;
+		message.reply(`**ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso! \n [Mais Info](${reportLink})`);
 	  }
 	} catch (error) {
 	  console.error('Error checking link:', error.response?.status || error.message);
 	  if (error.response?.status === 404) {
 		console.error(`URL not found: ${url}`);
 	  }
-	  message.reply('Não consegui verificar este link');
+	  errorChannelId.send(`Não consegui verificar este link\n ${url}`);
 	}
   };
 
