@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('8ball')
-		.setDescription('Faz uma pergunta e a 8ball responderá!')
+		.setDescription('Faz uma pergunta e a 8ball responde!')
 		.addStringOption(option =>
 			option.setName('question')
 				.setDescription('A sua pergunta para a 8ball')
@@ -37,8 +37,8 @@ module.exports = {
 			const randomIndex = Math.floor(Math.random() * responses.length);
 			const answer = responses[randomIndex];
 
-			// Reveal the answer after the delay
-			await interaction.editReply(`🎱 A 8ball diz: **${answer}**`);
+			// Reveal the answer after the delay, including the user's question
+			await interaction.editReply(`🎱 Você perguntou: **${question}**\nA 8ball diz: **${answer}**`);
 		}, 3000); // 3000 milliseconds = 3 seconds delay
 	},
 
