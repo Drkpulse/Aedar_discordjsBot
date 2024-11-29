@@ -92,6 +92,7 @@ module.exports = {
 				.addFields(fields)
 				.setThumbnail(dayWeatherIconUrl)
 				.setTimestamp()
+				.setDescription(`[Mais Informação](https://openweathermap.org/city/${forecast.city.id})`)
 				.setFooter({ text: 'Dados fornecidos por OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });
 
 			await interaction.followUp({ embeds: [embed] });
