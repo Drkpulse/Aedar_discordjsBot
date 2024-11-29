@@ -8,7 +8,7 @@ module.exports = {
 
 	run: async ({ interaction }) => {
 		try {
-			const response = await axios.get('https://yesno.wtf/api'); // Example API endpoint
+			const response = await axios.get('https://yesno.wtf/api');
 			const { answer, image } = response.data;
 
 			if (answer && image) {
