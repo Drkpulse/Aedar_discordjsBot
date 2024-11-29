@@ -17,14 +17,25 @@ module.exports = (message, client) => {
 	}
 
 	if (content.includes('tu não prendas o cabelo')) {
-		// Reply to the message
-		message.reply('https://youtu.be/7mVPolmgZtQ');
+		// Generate a random number between 0 and 1
+		const randomValue = Math.random();
+
+		if (randomValue < 0.3) {
+			// Reply to the message
+			message.reply('https://youtu.be/7mVPolmgZtQ');
+		}
 	}
 
 	if (content.includes('porém não posso')) {
-		// Reply to the message
-		message.reply('https://youtu.be/0_2zoei3-xg');
+		// Generate a random number between 0 and 1
+		const randomValue = Math.random();
+
+		if (randomValue < 0.3) {
+			// Reply to the message
+			message.reply('https://youtu.be/0_2zoei3-xg');
+		}
 	}
+
 
  //		************************ BANANA ************************
 
@@ -85,14 +96,21 @@ module.exports = (message, client) => {
 	const reply = replies[randomIndex];
 
 	// Reply to the message with the selected text and gif
-	 if (reply.gif) {
-		message.reply({
-			content: reply.text,
-			files: [reply.gif]
-		});
-	} else {
-		message.reply(reply.text);
+	// Generate a random number between 0 and 1
+	const randomValue = Math.random();
+
+	if (randomValue < 0.3) {
+		// Reply to the message
+		if (reply.gif) {
+			message.reply({
+				content: reply.text,
+				files: [reply.gif]
+			});
+		} else {
+			message.reply(reply.text);
+		}
 	}
+
 }
 
 if (content.includes('não gosto de patinar')) {
@@ -102,51 +120,58 @@ if (content.includes('não gosto de patinar')) {
 	return true;
 }
 
-	function transformToYodaSpeak(text) {
-		const sentences = text.split(/[.?!]/).filter(sentence => sentence.trim().length > 0);
+function transformToYodaSpeak(text) {
+	const sentences = text.split(/[.?!]/).filter(sentence => sentence.trim().length > 0);
 
-		const yodaSentences = sentences.map(sentence => {
-			const words = sentence.trim().split(/\s+/);
+	const yodaSentences = sentences.map(sentence => {
+		const words = sentence.trim().split(/\s+/);
 
-			// Yoda-like sentence structure: move the second half of the sentence to the beginning
-			const middleIndex = Math.floor(words.length / 2);
-			const firstPart = words.slice(0, middleIndex);
-			const secondPart = words.slice(middleIndex);
+		// Yoda-like sentence structure: move the last part of the sentence to the beginning
+		const lastIndex = words.length - 1;
+		const firstPart = words.slice(0, lastIndex);
+		const secondPart = words.slice(lastIndex);
 
-			let yodaSentence = [...secondPart, ...firstPart].join(' ');
+		// Rearranging the sentence to mimic Yoda's style
+		let yodaSentence = [...secondPart, ...firstPart].join(' ');
 
-			// Capitalize the first letter of the transformed sentence
-			yodaSentence = yodaSentence.charAt(0).toUpperCase() + yodaSentence.slice(1);
+		// Add a more Yoda-like twist by reversing the order of the first part
+		if (firstPart.length > 1) {
+			yodaSentence = [...firstPart.reverse(), ...secondPart].join(' ');
+		}
 
-			// Add "mmm" sounds randomly
-			if (Math.random() < 0.5) {
-				yodaSentence += " mmm";
-			}
+		// Capitalize the first letter of the transformed sentence
+		yodaSentence = yodaSentence.charAt(0).toUpperCase() + yodaSentence.slice(1);
 
-			// Mix up the punctuation randomly
-			const punctuation = ["!", "?", "...", "."];
-			const randomPunctuation = punctuation[Math.floor(Math.random() * punctuation.length)];
+		// Add "mmm" sounds randomly
+		if (Math.random() < 0.5) {
+			yodaSentence += " mmm";
+		}
 
-			yodaSentence += randomPunctuation;
+		// Mix up the punctuation randomly
+		const punctuation = ["!", "?", "...", "."];
+		const randomPunctuation = punctuation[Math.floor(Math.random() * punctuation.length)];
 
-			return yodaSentence.trim();
-		});
+		yodaSentence += randomPunctuation;
 
-		const yodaText = yodaSentences.join(' ');
+		return yodaSentence.trim();
+	});
 
-		return yodaText;
-	}
+	const yodaText = yodaSentences.join(' ');
 
-	if (content.includes('yoda') && !message.author.bot) {
-		// Transform the message content into Yoda-like speak
-		const yodaText = transformToYodaSpeak(content);
+	return yodaText;
+}
 
-		// Reply to the message with the Yoda-like text
-		message.reply(yodaText);
+if (content.includes('yoda') && !message.author.bot) {
+	// Transform the message content into Yoda-like speak
+	const yodaText = transformToYodaSpeak(content);
 
-		// Stop the event loop
-		return true;
-	}
+	// Reply to the message with the Yoda-like text
+	message.reply(yodaText);
+
+	// Stop the event loop
+	return true;
+}
+
 
 // Check for links in the message
 const urlRegex = /(https?:\/\/[^\s]+)/g;
