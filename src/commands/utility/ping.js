@@ -65,18 +65,12 @@ module.exports = {
 
 		// Edit the original reply with the updated embed
 		await interaction.editReply({ embeds: [embed] }).catch(console.error);
-
-		// Log command usage
-		 const date = new Date();
-		 const dateTime = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-		 const user = interaction.user.tag;
-		 const interactionId = interaction.commandName;
-
-		 console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 	},
 
 	options: {
 		cooldown: '5s',
+		isActive: true,
+		isAdmin: true,
 		//devOnly: true,
 		//userPermissions: ['Adminstrator'],
 		//botPermissions: ['BanMembers'],
