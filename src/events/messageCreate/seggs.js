@@ -195,40 +195,52 @@ if (urls) {
 
 		// Check if the domain is in the ignored list
 		if (!ignoredDomains.includes(domain)) {
-			checkMaliciousLink(url, message);
+			checkMaliciousLink(url, message, client);
 		}
 	});
 }
 };
 
 // Function to check if a link is malicious using VirusTotal API
-async function checkMaliciousLink(url, message) {
-	const errorChannelId = process.env.ERROR_CHANNELID;
-	try {
+async function checkMaliciousLink(url, message, client) {
+  const errorChannelId = process.env.ERROR_CHANNELID;
+  try {
 	// Properly encode the URL
 	const encodedUrl = Buffer.from(url).toString('base64').replace(/=+$/, '');
 
 	// Send the request to VirusTotal
 	const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
-		headers: {
-		  'x-apikey': VIRUSTOTAL_API_KEY,
-		},
-	  });
+	  headers: {
+		'x-apikey': process.env.VIRUSTOTAL_API_KEY, // Ensure the API key is securely stored
+	  },
+	});
 
-	  // Extract the malicious count
-	  const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
+	// Extract the malicious count
+	const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
 
-	  if (maliciousCount > 0) {
-		const reportLink = `https://www.virustotal.com/gui/url/${encodedUrl}`;
-		message.reply(`**ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso! \n [Mais Info](${reportLink})`);
-	  }
-	} catch (error) {
-	  console.error('Error checking link:', error.response?.status || error.message);
-	  if (error.response?.status === 404) {
-		console.error(`URL not found: ${url}`);
-	  }
-	  errorChannelId.send(`Não consegui verificar este link\n ${url}`);
+	if (maliciousCount > 1) {
+	  const reportLink = `https://www.virustotal.com/gui/url/${encodedUrl}`;
+	  message.reply(`<:malware:1311831679241031730> **ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso! <:malware:1311831679241031730> \n [Mais Info](<${reportLink}>)`);
 	}
-  };
+  } catch (error) {
+	console.error('Error checking link:', error.response?.status || error.message);
+
+	try {
+	  // Fetch the error channel
+	  const errorChannel = await client.channels.fetch(errorChannelId);
+	  if (errorChannel) {
+		const errorMessage = error.response?.status === 404
+		  ? `URL não encontrada: ${url}`
+		  : `Erro ao verificar o link: ${url}\n${error.response?.status || error.message}`;
+
+		errorChannel.send(`**Erro ao verificar link:**\n${errorMessage}`);
+	  } else {
+		console.error(`Error channel not found: ${errorChannelId}`);
+	  }
+	} catch (channelError) {
+	  console.error('Error sending message to error channel:', channelError.message);
+	}
+  }
+};
 
 
