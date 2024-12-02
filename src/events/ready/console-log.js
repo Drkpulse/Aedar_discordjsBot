@@ -1,47 +1,90 @@
 const { version } = require('../../../package.json');
 const axios = require('axios');
+const { clear } = require('console');
 const os = require('os');
 require('dotenv').config();
 
 module.exports = async (client, handler) => {
-	console.log(`\x1b[35m╭────────────────────────────────────\x1b[37m`);
-	console.log(`\x1b[35m│ \x1b[32m${client.user.username} is ready!\x1b[37m`);
-	console.log(`\x1b[35m│ \x1b[33mBot Version: ${version}\x1b[37m`);
-	console.log(`\x1b[35m│\x1b[37m`);
-	console.log(`\x1b[35m│ \x1b[34mSystem Information:\x1b[37m`);
-	console.log(`\x1b[35m│\x1b[37m`);
-	await printSystemStats();
-	console.log(`\x1b[35m│\x1b[37m`);
-	console.log(`\x1b[35m╰─────────────────────────────────────\x1b[37m\n`);
+	await displayAsciiArt();
+	console.system(clear);
+	delay(2000);
+    console.log(`\x1b[36m╭─────────────────────────────────────\x1b[37m`);
+    console.log(`\x1b[36m│ Booting up...\x1b[37m`);
+    await simulateBootSequence();
+    console.log(`\x1b[36m│ \x1b[32m${client.user.username} is ready!\x1b[37m`);
+    console.log(`\x1b[36m│ \x1b[33mBot Version: ${version}\x1b[37m`);
+    console.log(`\x1b[36m│\x1b[37m`);
+    console.log(`\x1b[36m│ \x1b[34mSystem Information:\x1b[37m`);
+    console.log(`\x1b[36m│\x1b[37m`);
+    await printSystemStats();
+    console.log(`\x1b[36m│\x1b[37m`);
+    console.log(`\x1b[36m╰─────────────────────────────────────\x1b[37m\n`);
 };
 
+async function displayAsciiArt() {
+    const asciiArt = `
+\x1b[35m  :::.    .,:::::::::::::-.    :::.    :::::::..
+\x1b[34m  ;;' ;;   ;;;;'''' ;;,   ';;  ;;' ;;   ;;;;'';;;;
+\x1b[33m ,[[ '[[,  [[cccc  '[[     [[ ,[[ '[[,  [[[,/[[['
+\x1b[32m c$cc$c $""""   $,    $c$cc$c $$c
+\x1b[31m 888   888,888oo,__ 888_,o8P' 888   888,888b "88bo,
+\x1b[30m YMM   ""' """"YUMMMMMMMP"'   YMM   ""' MMMM   "W"
+\x1b[37m`;
+    // Split the asciiArt into an array of lines
+    const lines = asciiArt.trim().split('\n');
+
+    for (const line of lines) {
+        console.log(line); // Print each line
+        await delay(500); // Simulate delay for each line
+    }
+}
+
+async function simulateBootSequence() {
+    const bootMessages = [
+        "Initializing system...",
+        "Loading BIOS...",
+        "Checking memory...",
+        "Booting from hard drive...",
+        "Loading operating system...",
+        "Starting services...",
+        "Configuring network...",
+        "System ready."
+    ];
+
+    for (const message of bootMessages) {
+        console.log(`\x1b[36m│ \x1b[37m${message}`);
+        await delay(1000); // Simulate delay for each boot message
+    }
+}
+
 async function printSystemStats() {
-	// Print CPU usage
-	const cpuUsage = process.cpuUsage();
-	const elapsedTime = process.uptime();
-	const totalCpuTime = (cpuUsage.user + cpuUsage.system) / 1000; // Convert microseconds to milliseconds
-	const cpuUsagePercentage = calculateCpuUsage(totalCpuTime, elapsedTime);
-	console.log(`\x1b[35m│ \x1b[34mCPU Usage Percentage:\x1b[37m ${cpuUsagePercentage}%\x1b[37m`);
+    // Print CPU usage
+    const cpuUsage = process.cpuUsage();
+    const elapsedTime = process.uptime();
+    const totalCpuTime = (cpuUsage.user + cpuUsage.system) / 1000; // Convert microseconds to milliseconds
+    const cpuUsagePercentage = calculateCpuUsage(totalCpuTime, elapsedTime);
+    console.log(`\x1b[36m│ \x1b[34mCPU Usage Percentage:\x1b[37m ${cpuUsagePercentage}%\x1b[37m`);
 
-	// Get total system memory and free memory
-	const totalMemory = Math.round(os.totalmem() / (1024 * 1024)); // Convert bytes to megabytes
-	const freeMemory = Math.round(os.freemem() / (1024 * 1024)); // Convert bytes to megabytes
+    // Get total system memory and free memory
+    const totalMemory = Math.round(os.totalmem() / (1024 * 1024)); // Convert bytes to megabytes
+    const freeMemory = Math.round(os.freemem() / (1024 * 1024)); // Convert bytes to megabytes
 
-	// Print RAM usage
-	console.log(`\x1b[35m│ \x1b[34mRAM Usage:\x1b[37m ${totalMemory - freeMemory} MB / ${totalMemory} MB\x1b[37m`);
+    // Print RAM usage
+    console.log(`\x1b[36m│ \x1b[34mRAM Usage:\x1b[37m ${totalMemory - freeMemory} MB / ${totalMemory} MB\x1b[37m`);
 
-	// Print Elapsed Time
-	const formattedElapsedTime = formatElapsedTime(elapsedTime);
-	console.log(`\x1b[35m│ \x1b[34mElapsed Time:\x1b[37m ${formattedElapsedTime}\x1b[37m`);
+    // Print Elapsed Time
+    const formattedElapsedTime = formatElapsedTime(elapsedTime);
+    console.log(`\x1b[36m│ \x1b[34mElapsed Time:\x1b[37m ${formattedElapsedTime}\x1b[37m`);
 
-	// Fetch latest release version from GitHub repository
-	try {
-		const response = await axios.get('https://api.github.com/repos/Drkpulse/jsdiscord/releases/latest');
-		const latestVersion = response.data.tag_name;
+    // Fetch latest release version from GitHub repository
+    try {
+        const response = await axios.get('https://api.github.com/repos/Drkpulse/jsdiscord/releases/latest');
+        const latestVersion = response.data.tag_name;
 
-		// Compare bot version with latest release version
-		if (version !== latestVersion) {
-			console.log(`\x1b[35m│ \x1b[31mUpdate Available: Latest version: ${latestVersion}\x1b[37m`);
+        // Compare bot version with latest release version
+        if (version !== latestVersion) {
+            console.log(`\x1b[36m│ \x1b[31mUpdate Available: Latest version: ${latestVersion}\x1b[37m`);
+
 		} else {
 			console.log(`\x1b[35m│ \x1b[32mUpdate Status: Bot is up to date.\x1b[37m`);
 		}
