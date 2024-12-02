@@ -20,7 +20,7 @@ module.exports = (message, client) => {
 		// Generate a random number between 0 and 1
 		const randomValue = Math.random();
 
-		if (randomValue < 0.3) {
+		if (randomValue < 0.5) {
 			// Reply to the message
 			message.reply('https://youtu.be/7mVPolmgZtQ');
 		}
@@ -30,7 +30,7 @@ module.exports = (message, client) => {
 		// Generate a random number between 0 and 1
 		const randomValue = Math.random();
 
-		if (randomValue < 0.3) {
+		if (randomValue < 0.7) {
 			// Reply to the message
 			message.reply('https://youtu.be/0_2zoei3-xg');
 		}
