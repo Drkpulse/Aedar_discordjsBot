@@ -1,15 +1,21 @@
 require('dotenv').config();
 const { OpenAI } = require('openai');
+const crypto = require('crypto');
 const { getDatabase } = require('../ready/mongoClient');
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
+const hashUserId = (userId) => {
+    return crypto.createHash('sha256').update(userId).digest('hex');
+};
+
 module.exports = async (message, botClient) => {
 	if (message.author.bot) return;
 
 	const userId = message.author.id;
+	const hashedUserId = hashUserId(userId);
 	const username = message.author.username;
 	const timestamp = new Date().toISOString();
 
@@ -18,14 +24,14 @@ module.exports = async (message, botClient) => {
 	const chatHistoryCollection = db.collection('openaiHistory');
 
 	// Helper function to fetch chat history
-	const getChatHistory = async (userId) => {
+	const getChatHistory = async (hashedUserId) => {
 		const history = await chatHistoryCollection.findOne({ userId });
 		return history?.messages || [];
 	};
 
 	// Helper function to update chat history
-	const updateChatHistory = async (userId, newMessage) => {
-		const history = await getChatHistory(userId);
+	const updateChatHistory = async (hashedUserId, newMessage) => {
+		const history = await getChatHistory(hashedUserId);
 
 		// System message (if not already present)
 		const systemMessage = {
@@ -41,8 +47,8 @@ module.exports = async (message, botClient) => {
 		const updatedHistory = [...history, newMessage].slice(-10);
 
 		await chatHistoryCollection.updateOne(
-			{ userId },
-			{ $set: { userId, messages: updatedHistory } },
+			{ userId: hashedUserId },
+			{ $set: { userId: hashedUserId, messages: updatedHistory } },
 			{ upsert: true }
 		);
 
