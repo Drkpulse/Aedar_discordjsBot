@@ -4,72 +4,72 @@ module.exports = async (client, handler) => {
 	// Array of status configurations
 	const statuses = [
 		{
-			name: 'Aprender Slalom 🛼',
+			name: 'Codificando um novo projeto 💻',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'Reels do Patins no Porto 🕵️‍♂️',
+			name: 'Assistindo a streams de programação 🎥',
 			type: ActivityType.Watching,
 		},
 		{
-			name: 'Como aprender a patinar em 3H',
+			name: 'Aprendendo novas linguagens de programação 📚',
 			type: ActivityType.Streaming,
 			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 		},
 		{
-			name: 'A ouvir musica da Teresa',
-			type: ActivityType.Listening,
-		},
-		{
-			name: 'A fazer umas manobras fixes 🛼',
-			type: ActivityType.Custom,
-		},
-		{
-			name: 'A limpar os rolamentos 🧼',
+			name: 'Jogando meu jogo favorito 🎮',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'A patinar no Porto 🛼',
-			type: ActivityType.Playing,
-		},
-		{
-			name: 'A espera da Ride de Sabado',
+			name: 'Debugando um código complicado 🐞',
 			type: ActivityType.Custom,
 		},
 		{
-			name: 'Pelos prémios do Ano Patins no Porto 🎁',
+			name: 'Participando de um hackathon 🚀',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'Desenvolvendo um novo jogo 🕹️',
+			type: ActivityType.Playing,
+		},
+		{
+			name: 'Aguardando a próxima atualização do jogo ⏳',
+			type: ActivityType.Custom,
+		},
+		{
+			name: 'Competindo em um torneio de eSports 🏆',
 			type: ActivityType.Competing,
 		},
 		{
-			name: 'Treino de Slalom com amigos 🛼',
+			name: 'Treinando habilidades de programação 🧠',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'Assistindo a competições de patinagem 🎥',
+			name: 'Assistindo a competições de jogos 🎮',
 			type: ActivityType.Watching,
 		},
 		{
-			name: 'Criando uma playlist para patinar 🎶',
+			name: 'Criando um novo mod para um jogo 🎨',
 			type: ActivityType.Listening,
 		},
 		{
-			name: 'Desafiando amigos para manobras 🛼',
+			name: 'Desafiando amigos em um jogo online 🕹️',
 			type: ActivityType.Custom,
 		},
 		{
-			name: 'Ajustando os patins para melhor desempenho 🔧',
+			name: 'Ajustando configurações do meu setup 🔧',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'Explorando novas pistas de patinagem 🌍',
+			name: 'Explorando novos jogos indie 🌍',
 			type: ActivityType.Playing,
 		},
 		{
-			name: 'Preparando-se para a competição de patins 🏆',
+			name: 'Preparando-se para a próxima maratona de jogos 🎉',
 			type: ActivityType.Custom,
 		},
 		{
-			name: 'Participando de eventos de patinagem 🎉',
+			name: 'Participando de eventos de programação 💻',
 			type: ActivityType.Competing,
 		},
 	];
