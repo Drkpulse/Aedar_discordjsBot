@@ -6,7 +6,7 @@ const EVENT_START_WEEKLY = 604800000;
 const EVENT_START_MONTHLY = 2628000000;
 
 module.exports = async (before, after, client) => {
-	console.log(`Scheduled event ${before.name} updated`);
+    console.log(`Scheduled event ${before.name} updated`);
 
 	// Trigger on starting an event
 	if (before.status === GuildScheduledEventStatus.Active && after.status === GuildScheduledEventStatus.Completed) {
@@ -66,4 +66,22 @@ async function deleteRoleForEvent(event, client) {
 	} catch (error) {
 		console.error('Error deleting role:', error);
 	}
+}
+
+async function deleteRoleForEvent(event, client) {
+    try {
+        const guild = await client.guilds.fetch(event.guildId);
+        const roleName = event.name; // Use the event name as the role name
+        const role = guild.roles.cache.find(role => role.name === roleName);
+
+        if (role) {
+            // Delete the role
+            await role.delete(`Role deleted for event: ${event.name}`);
+            console.log(`Role ${roleName} deleted.`);
+        } else {
+            console.log(`Role ${roleName} does not exist, nothing to delete.`);
+        }
+    } catch (error) {
+        console.error('Error deleting role:', error);
+    }
 }
