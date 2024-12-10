@@ -14,7 +14,8 @@ module.exports = async (event, user, client) => {
             // Create the role if it doesn't exist
             role = await guild.roles.create({
                 name: roleName,
-                //color: 'PURPLE', // You can choose any color you like
+                mentionable: true,
+                color: 'Random',
                 reason: `Role created for event: ${event.name}`,
             });
             console.log(`Role created: ${roleName}`);
