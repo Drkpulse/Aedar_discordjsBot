@@ -1,19 +1,31 @@
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const cooldowns = require('../../validations/cooldowns');
+const createEconomyManager = require('../../helpers/economyManager');
+
+let economyManager;
+
+(async () => {
+	economyManager = await createEconomyManager();
+})();
 
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('checkbalance')
-        .setDescription('Verifica o saldo atual do usuário'),
+	data: {
+		name: 'checkBalance',
+		description: 'Verifique seu saldo',
+	},
 
-    run: async ({ interaction }) => {
-        const userId = interaction.user.id; // Get the user ID from the interaction
+	run: async ({ interaction, client, handler }) => {
+		const userId = interaction.user.id; // Get the user ID from the interaction
+		try {
+			const balance = await economyManager.getBalance(userId); // Call the getBalance method
+			interaction.reply(`Seu saldo é: ${balance}`);
+		} catch (error) {
+			console.error(error);
+			interaction.reply('Ocorreu um erro ao verificar seu saldo.');
+		}
+	},
 
-        try {
-            const balance = await economyManager.getBalance(userId); // Call the getBalance method
-            await interaction.reply(`Seu saldo atual em ouro é: **${balance}** moedas.`);
-        } catch (error) {
-            console.error('Erro ao verificar saldo:', error.message);
-            await interaction.reply({ content: 'Ocorreu um erro ao verificar seu saldo. Tente novamente mais tarde.', ephemeral: true });
-        }
-    },
+	options: {
+		cooldown: '1m',
+	},
 };
+
