@@ -17,6 +17,12 @@ module.exports = async (client, handler) => {
     console.log(`\x1b[36m│ \x1b[34mSystem Information:\x1b[37m`);
     console.log(`\x1b[36m│\x1b[37m`);
     await printSystemStats();
+    if (envManager.missingOptional.length > 0) {
+        console.log(`\x1b[36m│ \x1b[33mWarning: ${envManager.missingOptional.length} environment variables missing\x1b[37m`);
+        console.log(`\x1b[36m│ \x1b[33mSome features may be limited\x1b[37m`);
+    } else {
+        console.log(`\x1b[36m│ \x1b[32mAll environment variables configured correctly\x1b[37m`);
+    }
     console.log(`\x1b[36m│\x1b[37m`);
     console.log(`\x1b[36m╰─────────────────────────────────────\x1b[37m\n`);
 };
