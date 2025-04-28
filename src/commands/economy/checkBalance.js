@@ -1,31 +1,53 @@
-const cooldowns = require('../../validations/cooldowns');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const createEconomyManager = require('../../helpers/economyManager');
 
 let economyManager;
 
 (async () => {
-	economyManager = await createEconomyManager();
+    economyManager = await createEconomyManager();
 })();
 
 module.exports = {
-	data: {
-		name: 'checkBalance',
-		description: 'Verifique seu saldo',
-	},
+    data: new SlashCommandBuilder()
+        .setName('balance')
+        .setDescription('Verifica seu saldo')
+        .addUserOption(option =>
+            option
+                .setName('user')
+                .setDescription('Usuário para verificar o saldo (opcional)')
+                .setRequired(false)
+        ),
 
-	run: async ({ interaction, client, handler }) => {
-		const userId = interaction.user.id; // Get the user ID from the interaction
-		try {
-			const balance = await economyManager.getBalance(userId); // Call the getBalance method
-			interaction.reply(`Seu saldo é: ${balance}`);
-		} catch (error) {
-			console.error(error);
-			interaction.reply('Ocorreu um erro ao verificar seu saldo.');
-		}
-	},
+    run: async ({ interaction, client, handler }) => {
+        await interaction.deferReply();
 
-	options: {
-		cooldown: '1m',
-	},
+        const targetUser = interaction.options.getUser('user') || interaction.user;
+        const userId = targetUser.id;
+
+        try {
+            const balances = await economyManager.getBalance(userId);
+
+            const embed = new EmbedBuilder()
+                .setColor('#FFD700')
+                .setTitle(`💰 Saldo de ${targetUser.username}`)
+                .setThumbnail(targetUser.displayAvatarURL())
+                .addFields(
+                    { name: '🥇 Ouro', value: `${balances.gold}`, inline: true },
+                    { name: '🥈 Prata', value: `${balances.silver}`, inline: true },
+                    { name: '🥉 Bronze', value: `${balances.bronze}`, inline: true }
+                )
+                .setFooter({ text: 'Sistema de Economia' })
+                .setTimestamp();
+
+            await interaction.editReply({ embeds: [embed] });
+        } catch (error) {
+            console.error(error);
+            await interaction.editReply('Ocorreu um erro ao verificar o saldo.');
+        }
+    },
+
+    options: {
+        cooldown: '10s',
+    },
 };
 

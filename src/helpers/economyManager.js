@@ -85,7 +85,47 @@ class EconomyManager {
         );
         await this.logTransaction(userId, amountInBronze, 'Balance Set', currency);
     }
+    // For Daily Reward
+    async getLastDailyClaim(userId) {
+        const user = await this.collection.findOne({ userId });
+        return user?.lastDailyClaim || null;
+    }
 
+    async setLastDailyClaim(userId, date) {
+        await this.collection.updateOne(
+            { userId },
+            { $set: { lastDailyClaim: date } },
+            { upsert: true }
+        );
+    }
+
+    // For Weekly Reward (similar approach)
+    async getLastWeeklyClaim(userId) {
+        const user = await this.collection.findOne({ userId });
+        return user?.lastWeeklyClaim || null;
+    }
+
+    async setLastWeeklyClaim(userId, date) {
+        await this.collection.updateOne(
+            { userId },
+            { $set: { lastWeeklyClaim: date } },
+            { upsert: true }
+        );
+    }
+
+    // For Inventory System
+    async addItemToInventory(userId, itemId, quantity = 1) {
+        await this.collection.updateOne(
+            { userId },
+            { $inc: { [`inventory.${itemId}`]: quantity } },
+            { upsert: true }
+        );
+    }
+
+    async getInventory(userId) {
+        const user = await this.collection.findOne({ userId });
+        return user?.inventory || {};
+    }
     // Get a user's balance, creating an account if not found
     async getBalance(userId) {
         const user = await this.collection.findOne({ userId });
@@ -96,6 +136,20 @@ class EconomyManager {
         return user.balances; // Return the existing balances
     }
 
+    // Get top users by balance for a specific currency
+    async getTopUsers(currency, limit = 10) {
+    const pipeline = [
+        { $sort: { [`balances.${currency}`]: -1 } },
+        { $limit: limit },
+        { $project: {
+            userId: 1,
+            balance: `$balances.${currency}`,
+            _id: 0
+        }}
+    ];
+
+    return await this.collection.aggregate(pipeline).toArray();
+}
     // Get conversion rate to bronze
     getConversionRate(currency) {
         switch (currency) {
