@@ -1,4 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { PermissionFlagsBits } = require('discord.js');
+const economyManager = require('../../utils/economyManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,7 +15,8 @@ module.exports = {
             option.setName('amount')
                 .setDescription('A quantidade a ser adicionada')
                 .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Admin only command
 
     run: async ({ interaction }) => {
         const userId = interaction.options.getUser('user').id; // Get the target user ID
@@ -24,8 +27,8 @@ module.exports = {
                 return await interaction.reply({ content: 'A quantidade deve ser maior que zero.', ephemeral: true });
             }
 
-            await economyManager.addBalance(userId, amount);
-            await interaction.reply(`Adicionado **${amount}** moedas ao saldo de <@${userId}>.`);
+            const newBalance = await economyManager.addBalance(userId, amount);
+            await interaction.reply(`Adicionado **${amount}** moedas ao saldo de <@${userId}>. Saldo atual: **${newBalance}** moedas.`);
         } catch (error) {
             console.error('Erro ao adicionar saldo:', error.message);
             await interaction.reply({ content: 'Ocorreu um erro ao adicionar saldo. Tente novamente mais tarde.', ephemeral: true });

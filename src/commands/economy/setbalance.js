@@ -1,4 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { PermissionFlagsBits } = require('discord.js');
+const economyManager = require('../../utils/economyManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,7 +15,8 @@ module.exports = {
             option.setName('amount')
                 .setDescription('O saldo que será definido')
                 .setRequired(true)
-        ),
+        )
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator), // Admin only command
 
     run: async ({ interaction }) => {
         const userId = interaction.options.getUser('user').id; // Get the target user ID
