@@ -23,9 +23,20 @@ const client = new Client({
     ],
 });
 
-// Initialize command state manager
+// Initialize command state manager and enable essential commands
 (async () => {
     await commandStateManager.initialize();
+
+    // Enable essential commands that should work by default
+    await commandStateManager.enableEssentialCommands([
+        'help',
+        'togglecommand',
+        'commandstates',
+        'info',
+        'ping'
+        // Add other essential commands that don't need special env variables
+    ]);
+
     console.log('Command state manager initialized');
 })();
 

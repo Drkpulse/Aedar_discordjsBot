@@ -20,6 +20,15 @@ class EnvManager {
       'USER_INTERACTION_LIMIT'
     ];
 
+    // Map commands to their required environment variables
+    this.commandEnvRequirements = {
+      'weather': ['OPENWEATHERMAP_API_KEY'],
+      'accuweather': ['ACCUWEATHER_API_KEY'],
+      'giphy': ['GIPHY_API'],
+      'virustotal': ['VIRUSTOTAL_API_KEY'],
+      // Add more command-to-env mappings as needed
+    };
+
     this.missingRequired = [];
     this.missingOptional = [];
 
@@ -44,6 +53,21 @@ class EnvManager {
 
   getEnvVarOrDefault(varName, defaultValue = null) {
     return this.isEnvVarSet(varName) ? process.env[varName] : defaultValue;
+  }
+
+  // Check if a command has all required environment variables set
+  canCommandRun(commandName) {
+    const requiredVars = this.commandEnvRequirements[commandName] || [];
+    if (requiredVars.length === 0) return true;
+
+    const missingVars = requiredVars.filter(varName => !this.isEnvVarSet(varName));
+    return missingVars.length === a0;
+  }
+
+  // Get missing environment variables for a specific command
+  getMissingEnvVarsForCommand(commandName) {
+    const requiredVars = this.commandEnvRequirements[commandName] || [];
+    return requiredVars.filter(varName => !this.isEnvVarSet(varName));
   }
 
   displayStatus() {
