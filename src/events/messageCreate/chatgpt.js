@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 require('dotenv').config();
 const { OpenAI } = require('openai');
 const crypto = require('crypto');
@@ -131,3 +132,125 @@ module.exports = async (message, botClient) => {
 		}
 	}
 };
+=======
+module.exports = async (message, botClient) => {
+    if (message.author.bot) return;
+
+    const userId = message.author.id;
+    const hashedUserId = hashUserId(userId);
+    const username = message.author.username;
+    const timestamp = new Date().toISOString();
+
+    // Fetch the collection using the centralized MongoDB setup
+    const db = await getDatabase();
+    const chatHistoryCollection = db.collection('openaiHistory');
+
+    // Helper function to fetch chat history
+    const getChatHistory = async (hashedUserId) => {
+        const history = await chatHistoryCollection.findOne({ userId: hashedUserId });
+        return history?.messages || [];
+    };
+
+    // Helper function to update chat history
+    const updateChatHistory = async (hashedUserId, newMessage) => {
+        const history = await getChatHistory(hashedUserId);
+
+        // Add the new message to history, capping at 10 messages
+        const updatedHistory = [...history, newMessage].slice(-10);
+
+        await chatHistoryCollection.updateOne(
+            { userId: hashedUserId },
+            { $set: { userId: hashedUserId, messages: updatedHistory } },
+            { upsert: true }
+        );
+
+        return updatedHistory;
+    };
+
+    // Define the system message
+    const systemMessage = {
+        role: 'system',
+        content:
+            'You are a bot specialized in inline skating, speaking in European Portuguese (pt-PT) with a smart and sarcastic but playful attitude. Use humor and casual language, but avoid excessive swearing. Messages must be below 2000 characters.',
+    };
+
+    // Handle chat history and new message
+    let history = await getChatHistory(hashedUserId);
+    const userMessage = { role: 'user', content: message.content, username, timestamp };
+    history = await updateChatHistory(hashedUserId, userMessage);
+
+    // Ensure system message is at the beginning of the history
+    const messagesToSend = [systemMessage, ...history.filter(msg => msg.role !== 'system')];
+
+    // Handle replies to bot messages
+    if (message.reference) {
+        try {
+            const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
+
+            if (referencedMessage.author.id === botClient.user.id) {
+                const botMessage = {
+                    role: 'assistant',
+                    content: referencedMessage.content,
+                    username: botClient.user.username,
+                    timestamp: referencedMessage.createdAt.toISOString(),
+                };
+                history = await updateChatHistory(hashedUserId, botMessage);
+
+                // Simulate typing
+                await message.channel.sendTyping();
+
+                const response = await openai.chat.completions.create({
+                    model: 'gpt-4o-mini',
+                    messages: messagesToSend,
+                });
+
+                const reply = response.choices[0].message.content;
+                await message.reply(reply);
+
+                // Update history with bot's reply
+                const botReplyMessage = {
+                    role: 'assistant',
+                    content: reply,
+                    username: botClient.user.username,
+                    timestamp: new Date().toISOString(),
+                };
+                await updateChatHistory(hashedUserId, botReplyMessage);
+
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching referenced message or communicating with OpenAI:', error);
+            message.reply('Sorry, I encountered an error while processing your request.');
+            return; // Exit on error
+        }
+    }
+
+    // Handle mentions
+    if (message.mentions.has(botClient.user)) {
+        try {
+            // Simulate typing
+            await message.channel.sendTyping();
+
+            const response = await openai.chat.completions.create({
+                model: 'gpt-4o-mini',
+                messages: messagesToSend,
+            });
+
+            const reply = response.choices[0].message.content;
+            await message.reply(reply);
+
+            // Update history with bot's reply
+            const botReplyMessage = {
+                role: 'assistant',
+                content: reply,
+                username: botClient.user.username,
+                timestamp: new Date().toISOString(),
+            };
+            await updateChatHistory(hashedUserId, botReplyMessage);
+        } catch (error) {
+            console.error('Error communicating with OpenAI:', error);
+            message.reply('Sorry, I encountered an error while processing your request.');
+        }
+    }
+};
+>>>>>>> Stashed changes
