@@ -1,4 +1,4 @@
-const { getDatabase } = require('../ready/mongoClient');
+const { getDatabase } = require('../../helpers/mongoClient');
 const crypto = require('crypto');
 
 module.exports = async (interaction, io) => {
@@ -18,33 +18,25 @@ module.exports = async (interaction, io) => {
 
   console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 
-  // Check for user consent (this should be implemented in your application logic)
-  const userConsent = true; // Replace with actual consent check
-
-  if (!userConsent) {
-    console.warn('User has not given consent for data logging.');
-    return;
-  }
-
   try {
-    // Get MongoDB instance and collection
-    const db = await getDatabase();
-    const interactionLogsCollection = db.collection('interactionLogs');
+	// Get MongoDB instance and collection
+	const db = await getDatabase();
+	const interactionLogsCollection = db.collection('interactionLogs');
 
-    // Log interaction in MongoDB
-    const interactionLog = {
-      user,
-      userId: hashedUserId, // Store the hashed user ID
-      salt, // Store the salt for future verification if needed
-      interactionId,
-      channelId,
-      serverId,
-      dateTime,
-    };
+	// Log interaction in MongoDB
+	const interactionLog = {
+	  user,
+	  userId: hashedUserId, // Store the hashed user ID
+	  salt, // Store the salt for future verification if needed
+	  interactionId,
+	  channelId,
+	  serverId,
+	  dateTime,
+	};
 
-    await interactionLogsCollection.insertOne(interactionLog);
-    console.log('Interaction logged in database:', interactionLog);
+	await interactionLogsCollection.insertOne(interactionLog);
+	console.log('Interaction logged in database:', interactionLog);
   } catch (error) {
-    console.error('Error logging interaction in database:', error);
+	console.error('Error logging interaction in database:', error);
   }
 };

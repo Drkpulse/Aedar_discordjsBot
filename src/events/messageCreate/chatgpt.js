@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { OpenAI } = require('openai');
 const crypto = require('crypto');
-const { getDatabase } = require('../ready/mongoClient');
+const { getDatabase } = require('../../helpers/mongoClient');
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,

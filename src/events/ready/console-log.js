@@ -5,12 +5,8 @@ const os = require('os');
 require('dotenv').config();
 
 module.exports = async (client, handler) => {
-	await displayAsciiArt();
-	console.system(clear);
-	delay(2000);
+    await displayAsciiArt();
     console.log(`\x1b[36m╭─────────────────────────────────────\x1b[37m`);
-    console.log(`\x1b[36m│ Booting up...\x1b[37m`);
-    await simulateBootSequence();
     console.log(`\x1b[36m│ \x1b[32m${client.user.username} is ready!\x1b[37m`);
     console.log(`\x1b[36m│ \x1b[33mBot Version: ${version}\x1b[37m`);
     console.log(`\x1b[36m│\x1b[37m`);
@@ -23,38 +19,22 @@ module.exports = async (client, handler) => {
 
 async function displayAsciiArt() {
     const asciiArt = `
-\x1b[35m  :::.    .,:::::::::::::-.    :::.    :::::::..
-\x1b[34m  ;;' ;;   ;;;;'''' ;;,   ';;  ;;' ;;   ;;;;'';;;;
-\x1b[33m ,[[ '[[,  [[cccc  '[[     [[ ,[[ '[[,  [[[,/[[['
-\x1b[32m c$cc$c $""""   $,    $c$cc$c $$c
-\x1b[31m 888   888,888oo,__ 888_,o8P' 888   888,888b "88bo,
-\x1b[30m YMM   ""' """"YUMMMMMMMP"'   YMM   ""' MMMM   "W"
-\x1b[37m`;
-    // Split the asciiArt into an array of lines
+    \x1b[35;1m  :::.    .,:::::::::::::-.    :::.    :::::::..
+    \x1b[35;1m  ;;' ;;   ;;;;'''' ;;,   ';;  ;;' ;;   ;;;;'';;;;
+    \x1b[35;1m ,[[ '[[,  [[cccc  '[[     [[ ,[[ '[[,  [[[,/[[['
+    \x1b[35;1m c$cc$c $""""   $,    $c$cc$c $$c
+    \x1b[35;1m 888   888,888oo,__ 888_,o8P' 888   888,888b "88bo,
+    \x1b[35;1m   ""' """"YUMMMMMMMP"'   YMM   ""' MMMM   "W"
+    \x1b[37m`;
     const lines = asciiArt.trim().split('\n');
-
     for (const line of lines) {
         console.log(line); // Print each line
-        await delay(500); // Simulate delay for each line
     }
 }
 
-async function simulateBootSequence() {
-    const bootMessages = [
-        "Initializing system...",
-        "Loading BIOS...",
-        "Checking memory...",
-        "Booting from hard drive...",
-        "Loading operating system...",
-        "Starting services...",
-        "Configuring network...",
-        "System ready."
-    ];
-
-    for (const message of bootMessages) {
-        console.log(`\x1b[36m│ \x1b[37m${message}`);
-        await delay(1000); // Simulate delay for each boot message
-    }
+// Delay function using Promise
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function printSystemStats() {
@@ -84,24 +64,23 @@ async function printSystemStats() {
         // Compare bot version with latest release version
         if (version !== latestVersion) {
             console.log(`\x1b[36m│ \x1b[31mUpdate Available: Latest version: ${latestVersion}\x1b[37m`);
-
-		} else {
-			console.log(`\x1b[35m│ \x1b[32mUpdate Status: Bot is up to date.\x1b[37m`);
-		}
-	} catch (error) {
-		console.error('\x1b[41mError fetching latest version from GitHub:\x1b[37m', error);
-	}
+        } else {
+            console.log(`\x1b[35m│ \x1b[32mUpdate Status: Bot is up to date.\x1b[37m`);
+        }
+    } catch (error) {
+        console.error('\x1b[41mError fetching latest version from GitHub:\x1b[37m', error);
+    }
 }
 
 function calculateCpuUsage(totalCpuTime, elapsedTime) {
-	const availableCpuTime = os.cpus().length * elapsedTime * 1000; // Total CPU time available for all cores during the elapsed time (in microseconds)
-	const cpuUsagePercentage = ((totalCpuTime / availableCpuTime) * 100).toFixed(2); // Calculate CPU usage percentage
-	return cpuUsagePercentage;
+    const availableCpuTime = os.cpus().length * elapsedTime * 1000; // Total CPU time available for all cores during the elapsed time (in microseconds)
+    const cpuUsagePercentage = ((totalCpuTime / availableCpuTime) * 100).toFixed(2); // Calculate CPU usage percentage
+    return cpuUsagePercentage;
 }
 
 function formatElapsedTime(seconds) {
-	const hours = Math.floor(seconds / 3600);
-	const minutes = Math.floor((seconds % 3600) / 60);
-	const remainingSeconds = Math.floor(seconds % 60);
-	return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${hours}h ${minutes}m ${remainingSeconds}s`;
 }
