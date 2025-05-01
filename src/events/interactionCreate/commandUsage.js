@@ -1,17 +1,10 @@
 const { getDatabase } = require('../../helpers/mongoClient');
-const crypto = require('crypto');
 
 module.exports = async (interaction, io) => {
   if (!interaction.isCommand()) return;
 
   const dateTime = new Date().toISOString().replace('T', ' ').split('.')[0];
   const user = interaction.user.tag;
-  const userId = interaction.user.id; // Original user ID
-
-  // Generate a random salt
-  const salt = crypto.randomBytes(16).toString('hex'); // 16 bytes of random data
-  const hashedUserId = crypto.createHash('sha256').update(salt + userId).digest('hex'); // Hashing the user ID with salt
-
   const interactionId = interaction.commandName;
   const channelId = interaction.channelId;
   const serverId = interaction.guildId || null;
@@ -19,24 +12,22 @@ module.exports = async (interaction, io) => {
   console.log(`[${dateTime}] User: ${user} | Interaction: ${interactionId}`);
 
   try {
-	// Get MongoDB instance and collection
-	const db = await getDatabase();
-	const interactionLogsCollection = db.collection('interactionLogs');
+    // Get MongoDB instance and collection
+    const db = await getDatabase();
+    const interactionLogsCollection = db.collection('interactionLogs');
 
-	// Log interaction in MongoDB
-	const interactionLog = {
-	  user,
-	  userId: hashedUserId, // Store the hashed user ID
-	  salt, // Store the salt for future verification if needed
-	  interactionId,
-	  channelId,
-	  serverId,
-	  dateTime,
-	};
+    // Log interaction in MongoDB
+    const interactionLog = {
+      user,
+      interactionId,
+      channelId,
+      serverId,
+      dateTime,
+    };
 
-	await interactionLogsCollection.insertOne(interactionLog);
-	console.log('Interaction logged in database:', interactionLog);
+    await interactionLogsCollection.insertOne(interactionLog);
+    console.log('Interaction logged in database:', interactionLog);
   } catch (error) {
-	console.error('Error logging interaction in database:', error);
+    console.error('Error logging interaction in database:', error);
   }
 };
