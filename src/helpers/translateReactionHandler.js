@@ -97,6 +97,9 @@ const flagToLanguage = {
 };
 
 module.exports = async (reaction, user, client) => {
+    // Create a variable to store the initial reply
+    let initialReply;
+
     try {
         if (reaction.message.partial) await reaction.message.fetch();
         if (reaction.partial) await reaction.fetch();
@@ -113,7 +116,7 @@ module.exports = async (reaction, user, client) => {
         const text = message.content;
 
         // Send initial loading message
-        const initialReply = await message.reply(`🔄 Translating to **${getLanguageName(targetLanguage)}**...`);
+        initialReply = await message.reply(`🔄 Translating to **${getLanguageName(targetLanguage)}**...`);
 
         // Use the translate API to translate the message
         const [translations] = await translate.translate(text, targetLanguage);
@@ -137,7 +140,20 @@ module.exports = async (reaction, user, client) => {
 
     } catch (error) {
         console.error('Error handling reaction:', error);
-        await reaction.message.reply('Sorry, I couldn\'t translate the message.');
+
+        // If initialReply exists, edit it instead of sending a new message
+        if (initialReply) {
+            const errorEmbed = new EmbedBuilder()
+                .setColor('#FF0000')
+                .setTitle('Translation Error')
+                .setDescription('Sorry, I couldn\'t translate the message.')
+                .setFooter({ text: `Requested by ${user.tag}`, iconURL: user.displayAvatarURL({ dynamic: true }) });
+
+            await initialReply.edit({ content: null, embeds: [errorEmbed] });
+        } else {
+            // Fallback in case initialReply wasn't created
+            await reaction.message.reply('Sorry, I couldn\'t translate the message.');
+        }
     }
 };
 
