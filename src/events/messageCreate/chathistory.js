@@ -25,12 +25,12 @@ module.exports = async (message) => {
 
   // Helper function to fetch user data from MongoDB
   const getUserData = async (userId) => {
-    const userData = await chatHistoryCollection.findOne({ userId });
-    return {
-      username: userData?.username || username,
-      messageCount: userData?.messageCount || 0,
-      conversationHistory: userData?.conversationHistory || []
-    };
+	const userData = await chatHistoryCollection.findOne({ userId });
+	return {
+	  username: userData?.username || username,
+	  messageCount: userData?.messageCount || 0,
+	  conversationHistory: userData?.conversationHistory || []
+	};
   };
 
   // Fetch current user data
@@ -38,48 +38,50 @@ module.exports = async (message) => {
 
   // Create the new message object
   const userMessage = {
-    messageId,
-    content,
-    timestamp,
-    channelId,
-    channelName,
-    messageType,
-    attachments,
-    mentions,
-    isEdited,
-    editTimestamp,
-    serverId,
-    replyToId
+	messageId,
+	content,
+	timestamp,
+	channelId,
+	channelName,
+	messageType,
+	attachments,
+	mentions,
+	isEdited,
+	editTimestamp,
+	serverId,
+	replyToId
   };
 
   // Base update operations - always count messages and update username
   const updateOperations = {
-    $set: { username },
-    $inc: { messageCount: 1 }
+	$set: { username },
+	$inc: { messageCount: 1 }
   };
 
-  // Only add to conversation history if it's a reply
-  if (replyToId) {
-    updateOperations.$push = {
-      conversationHistory: {
-        $each: [userMessage],
-        $slice: -50 // Keep only last 50 conversation messages
-      }
-    };
+  // Add to conversation history if it's a reply or contains mentions
+  if (replyToId || mentions.length > 0) {
+	updateOperations.$push = {
+	  conversationHistory: {
+		$each: [userMessage],
+		$slice: -50 // Keep only last 50 conversation messages
+	  }
+	};
   }
 
   // Update user data in MongoDB
   await chatHistoryCollection.updateOne(
-    { userId },
-    updateOperations,
-    { upsert: true }
+	{ userId },
+	updateOperations,
+	{ upsert: true }
   );
 
   // Log information for debugging
   console.log(`Message logged for ${username} (ID: ${userId}), total messages: ${userData.messageCount + 1}`);
   if (replyToId) {
-    console.log(`Added message to conversation history (reply to ${replyToId})`);
+	console.log(`Added message to conversation history (reply to ${replyToId})`);
+  } else if (mentions.length > 0) {
+	console.log(`Added message to conversation history (contains ${mentions.length} mention(s))`);
   } else {
-    console.log(`Message counted but not saved to history (not a reply)`);
+	console.log(`Message counted but not saved to history (not a reply or mention)`);
   }
 };
