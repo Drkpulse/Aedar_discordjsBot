@@ -156,20 +156,20 @@ async function updatePlayerStats(userId, result, hadBlackjack = false, busted = 
 }
 
 module.exports = {
-	data: new SlashCommandBuilder()
-		.setName('blackjack')
-		.setDescription('Jogue uma partida de Blackjack!')
-		.addSubcommand(subcommand =>
-			subcommand
-				.setName('stats')
-				.setDescription('Ver suas estatísticas de Blackjack')),
+    data: new SlashCommandBuilder()
+        .setName('blackjack')
+        .setDescription('Jogue uma partida de Blackjack!')
+        .addSubcommand(option =>
+            option
+                .setName('stats')
+                .setDescription('Ver suas estatísticas de Blackjack')),
 
-	run: async ({ interaction }) => {
-		// Check if the user is requesting stats
-		if (interaction.options.getSubcommand(false) === 'stats') {
-			try {
-				const userId = interaction.user.id;
-				const stats = await getPlayerStats(userId);
+    run: async ({ interaction }) => {
+        // Check if the user is requesting stats
+        if (interaction.options.getSubcommand() === 'stats') {
+            try {
+                const userId = interaction.user.id;
+                const stats = await getPlayerStats(userId);
 
 				const winRate = stats.gamesPlayed > 0
 					? ((stats.gamesWon / stats.gamesPlayed) * 100).toFixed(1)
