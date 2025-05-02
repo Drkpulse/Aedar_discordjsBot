@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { getDatabase } = require('../ready/mongoClient');
+const { getDatabase } = require('../../helpers/mongoClient');
 
 module.exports = async (message) => {
   if (message.author.bot) return;
@@ -12,52 +12,74 @@ module.exports = async (message) => {
   const timestamp = new Date().toISOString();
   const messageId = message.id;
   const messageType = message.attachments.size > 0 ? 'attachment' : 'text';
-  const attachments = message.attachments.map(att => att.url); // Collect attachment URLs
-  const mentions = message.mentions.users.map(user => user.id); // Collect mentioned users
-  const isEdited = message.editedTimestamp !== null; // Check if the message is edited
-  const editTimestamp = isEdited ? message.editedTimestamp.toISOString() : null; // Get edit timestamp
-  const serverId = message.guild ? message.guild.id : null; // Get server ID if applicable
+  const attachments = message.attachments.map(att => att.url);
+  const mentions = message.mentions.users.map(user => user.id);
+  const isEdited = message.editedTimestamp !== null;
+  const editTimestamp = isEdited ? message.editedTimestamp.toISOString() : null;
+  const serverId = message.guild ? message.guild.id : null;
+  const replyToId = message.reference ? message.reference.messageId : null;
 
   // Get MongoDB instance and collection
   const db = await getDatabase();
   const chatHistoryCollection = db.collection('chatHistory');
 
-  // Helper function to fetch chat history from MongoDB
-  const getChatHistory = async (userId) => {
-	const history = await chatHistoryCollection.findOne({ userId });
-	return history?.messages || [];
+  // Helper function to fetch user data from MongoDB
+  const getUserData = async (userId) => {
+    const userData = await chatHistoryCollection.findOne({ userId });
+    return {
+      username: userData?.username || username,
+      messageCount: userData?.messageCount || 0,
+      conversationHistory: userData?.conversationHistory || []
+    };
   };
 
-  // Helper function to update chat history in MongoDB
-  const updateChatHistory = async (userId, newMessage) => {
-	// Add the new message to history without capping
-	await chatHistoryCollection.updateOne(
-	  { userId },
-	  { $push: { messages: newMessage } },
-	  { upsert: true }
-	);
-  };
+  // Fetch current user data
+  const userData = await getUserData(userId);
 
-  // Fetch current history and update with user's message
+  // Create the new message object
   const userMessage = {
-	role: 'user',
-	content,
-	username,
-	timestamp,
-	channelId,
-	channelName,
-	messageId,
-	messageType,
-	attachments,
-	mentions,
-	isEdited,
-	editTimestamp,
-	serverId,
+    messageId,
+    content,
+    timestamp,
+    channelId,
+    channelName,
+    messageType,
+    attachments,
+    mentions,
+    isEdited,
+    editTimestamp,
+    serverId,
+    replyToId
   };
 
-  await updateChatHistory(userId, userMessage);
+  // Base update operations - always count messages and update username
+  const updateOperations = {
+    $set: { username },
+    $inc: { messageCount: 1 }
+  };
 
-  // Optionally, fetch and log the user's chat history
-  const history = await getChatHistory(userId);
-  console.log('Chat history for user:', userId, history);
+  // Only add to conversation history if it's a reply
+  if (replyToId) {
+    updateOperations.$push = {
+      conversationHistory: {
+        $each: [userMessage],
+        $slice: -50 // Keep only last 50 conversation messages
+      }
+    };
+  }
+
+  // Update user data in MongoDB
+  await chatHistoryCollection.updateOne(
+    { userId },
+    updateOperations,
+    { upsert: true }
+  );
+
+  // Log information for debugging
+  console.log(`Message logged for ${username} (ID: ${userId}), total messages: ${userData.messageCount + 1}`);
+  if (replyToId) {
+    console.log(`Added message to conversation history (reply to ${replyToId})`);
+  } else {
+    console.log(`Message counted but not saved to history (not a reply)`);
+  }
 };

@@ -6,7 +6,7 @@ module.exports = async (event, user, client) => {
         const guild = client.guilds.cache.get(event.guild.id);
 
         // Create a role with the event name
-        const roleName = event.name; // Use the event name as the role name
+        const roleName = `${event.name} Evento`; // Use the event name as the role name
         const existingRole = guild.roles.cache.find(role => role.name === roleName);
 
         let role;
@@ -14,6 +14,7 @@ module.exports = async (event, user, client) => {
             // Create the role if it doesn't exist
             role = await guild.roles.create({
                 name: roleName,
+                mentionable: true,
                 color: 'Random',
                 reason: `Role created for event: ${event.name}`,
             });

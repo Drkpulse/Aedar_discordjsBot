@@ -51,53 +51,139 @@ module.exports = {
 			});
 
 			if (filteredForecasts.length === 0) {
-				await interaction.followUp({ content: 'Não foi encontrado nenhum dado de previsão para a data especificada. Por favor, insere uma data válida dentro dos próximos 5 dias.', ephemeral: true });
+				await interaction.followUp({
+					content: '⚠️ Não foi encontrado nenhum dado de previsão para a data especificada. Por favor, insira uma data válida dentro dos próximos 5 dias.',
+					ephemeral: true
+				});
 				return;
 			}
 
-			const fields = filteredForecasts.map(forecast => {
-				const forecastDateTime = new Date(forecast.dt * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-				const weatherIconUrl = `http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
-				const windEmoji = getWindDirectionEmoji(forecast.wind.deg);
-				const rainChance = forecast.pop ? `${Math.round(forecast.pop * 100)}%` : 'N/A';
+			// Get average temperature and most common weather for the day
+			const avgTemp = filteredForecasts.reduce((sum, f) => sum + f.main.temp, 0) / filteredForecasts.length;
+			const weatherCounts = {};
+			filteredForecasts.forEach(f => {
+				const weather = f.weather[0].main;
+				weatherCounts[weather] = (weatherCounts[weather] || 0) + 1;
+			});
+			const dominantWeather = Object.entries(weatherCounts).sort((a, b) => b[1] - a[1])[0][0];
 
-				// Create a value string only if the data is valid
-				const valueParts = [];
-				if (forecast.weather[0].description) {
-					valueParts.push(forecast.weather[0].description);
-				}
-				if (forecast.main.temp !== undefined) {
-					valueParts.push(`🌡️ ${forecast.main.temp}°C`);
-				}
-				if (forecast.wind.speed !== undefined) {
-					valueParts.push(`💨 ${forecast.wind.speed} m/s ${windEmoji}`);
-				}
-				if (rainChance !== 'N/A') {
-					valueParts.push(`🌧️ ${rainChance}`);
-				}
+			// Get corresponding icon for the dominant weather
+			const dominantIcon = filteredForecasts.find(f => f.weather[0].main === dominantWeather).weather[0].icon;
+			const dayWeatherIconUrl = `http://openweathermap.org/img/wn/${dominantIcon}@4x.png`;
 
-				return {
-					name: `${forecastDateTime}`,
-					value: valueParts.join('\n'), // Join valid parts
-					inline: true,
-					icon_url: weatherIconUrl, // Add the icon URL to the field
-				};
-			}).filter(field => field.value); // Filter out any fields with no value
+			// Format date to be more readable
+			const formattedDate = new Date(date).toLocaleDateString('pt-BR', {
+				weekday: 'long',
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric'
+			});
 
-			const dayWeatherIconUrl = `http://openweathermap.org/img/wn/${filteredForecasts[0].weather[0].icon}@4x.png`;
+			// City name with first letter capitalized of each word
+			const formattedLocation = location
+				.split(' ')
+				.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+				.join(' ');
 
+			// Create main embed
 			const embed = new EmbedBuilder()
 				.setColor('#0099ff')
-				.setTitle(`Previsão do tempo para ${location} em ${date}`)
-				.addFields(fields)
+				.setTitle(`🌦️ Previsão do tempo para ${formattedLocation}`)
+				.setDescription(`**${formattedDate}**\n\n${getWeatherEmoji(dominantWeather)} **${dominantWeather}** • Média: **${avgTemp.toFixed(1)}°C**`)
 				.setThumbnail(dayWeatherIconUrl)
 				.setTimestamp()
-				.setDescription(`[Mais Informação](https://openweathermap.org/city/${forecast.city.id})`)
-				.setFooter({ text: 'Dados fornecidos por OpenWeatherMap', iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4' });
+				.setFooter({
+					text: 'Dados fornecidos por OpenWeatherMap',
+					iconURL: 'https://avatars.githubusercontent.com/u/1743227?s=200&v=4'
+				});
+
+			// Group forecasts by time period (morning, afternoon, evening, night)
+			const morning = filteredForecasts.filter(f => {
+				const hour = new Date(f.dt * 1000).getHours();
+				return hour >= 6 && hour < 12;
+			})[0];
+
+			const afternoon = filteredForecasts.filter(f => {
+				const hour = new Date(f.dt * 1000).getHours();
+				return hour >= 12 && hour < 18;
+			})[0];
+
+			const evening = filteredForecasts.filter(f => {
+				const hour = new Date(f.dt * 1000).getHours();
+				return hour >= 18 && hour < 22;
+			})[0];
+
+			const night = filteredForecasts.filter(f => {
+				const hour = new Date(f.dt * 1000).getHours();
+				return hour >= 22 || hour < 6;
+			})[0];
+
+			// Add time period forecasts with morning and night in the first row, afternoon and evening in the second row
+			const timeBlocks = [
+				{ name: "Madrugada 🌙", data: night, inline: true },
+				{ name: "Manhã 🌅", data: morning, inline: true }
+			];
+
+			// Add first row of time blocks
+			timeBlocks.forEach(block => {
+				if (block.data) {
+					const forecast = block.data;
+					const windEmoji = getWindDirectionEmoji(forecast.wind.deg);
+					const rainChance = forecast.pop ? `${Math.round(forecast.pop * 100)}%` : 'N/A';
+
+					embed.addFields({
+						name: block.name,
+						value: [
+							`${getWeatherEmoji(forecast.weather[0].main)} **${forecast.weather[0].description}**`,
+							`🌡️ **${forecast.main.temp.toFixed(1)}°C** (Sensação: ${forecast.main.feels_like.toFixed(1)}°C)`,
+							`💧 Humidade: ${forecast.main.humidity}%`,
+							`💨 Vento: ${forecast.wind.speed.toFixed(1)} m/s ${windEmoji}`,
+							rainChance !== 'N/A' ? `🌧️ Chuva: ${rainChance}` : ''
+						].filter(line => line).join('\n'),
+						inline: true
+					});
+				}
+			});
+
+			// Add second row with afternoon and evening
+			const secondRowBlocks = [
+				{ name: "Tarde ☀️", data: afternoon, inline: true },
+				{ name: "Noite 🌆", data: evening, inline: true }
+			];
+
+			secondRowBlocks.forEach(block => {
+				if (block.data) {
+					const forecast = block.data;
+					const windEmoji = getWindDirectionEmoji(forecast.wind.deg);
+					const rainChance = forecast.pop ? `${Math.round(forecast.pop * 100)}%` : 'N/A';
+
+					embed.addFields({
+						name: block.name,
+						value: [
+							`${getWeatherEmoji(forecast.weather[0].main)} **${forecast.weather[0].description}**`,
+							`🌡️ **${forecast.main.temp.toFixed(1)}°C** (Sensação: ${forecast.main.feels_like.toFixed(1)}°C)`,
+							`💧 Humidade: ${forecast.main.humidity}%`,
+							`💨 Vento: ${forecast.wind.speed.toFixed(1)} m/s ${windEmoji}`,
+							rainChance !== 'N/A' ? `🌧️ Chuva: ${rainChance}` : ''
+						].filter(line => line).join('\n'),
+						inline: true
+					});
+				}
+			});
+
+			// Add city information
+			embed.addFields({
+				name: '📍 Molho da Informação',
+				value: `[Ver mais detalhes](https://openweathermap.org/city/${forecastData.city.id})`,
+				inline: false
+			});
 
 			await interaction.followUp({ embeds: [embed] });
 		} catch (error) {
-			await interaction.followUp({ content: 'Ocorreu um erro ao obter os dados da previsão do tempo. Por favor, tente novamente mais tarde.', ephemeral: true });
+			await interaction.followUp({
+				content: '❌ Ocorreu um erro ao obter os dados da previsão do tempo. Por favor, tente novamente mais tarde.',
+				ephemeral: true
+			});
 			console.error('Error fetching forecast data:', error);
 		}
 	},
@@ -110,4 +196,22 @@ function getWindDirectionEmoji(degrees) {
 	const emojiDirections = ['⬆️', '↗️', '➡️', '↘️', '⬇️', '↙️', '⬅️', '↖️'];
 	const index = Math.round(degrees / 45) % 8;
 	return emojiDirections[index];
+}
+
+function getWeatherEmoji(weatherType) {
+	const weatherEmojis = {
+		'Clear': '☀️',
+		'Clouds': '☁️',
+		'Rain': '🌧️',
+		'Drizzle': '🌦️',
+		'Thunderstorm': '⛈️',
+		'Snow': '❄️',
+		'Mist': '🌫️',
+		'Fog': '🌫️',
+		'Haze': '🌫️',
+		'Dust': '💨',
+		'Smoke': '💨'
+	};
+
+	return weatherEmojis[weatherType] || '🌡️';
 }

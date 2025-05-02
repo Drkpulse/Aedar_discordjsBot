@@ -1,21 +1,15 @@
 require('dotenv').config();
 const { OpenAI } = require('openai');
-const crypto = require('crypto');
-const { getDatabase } = require('../ready/mongoClient');
+const { getDatabase } = require('../../helpers/mongoClient');
 
 const openai = new OpenAI({
 	apiKey: process.env.OPENAI_API_KEY,
 });
 
-const hashUserId = (userId) => {
-    return crypto.createHash('sha256').update(userId).digest('hex');
-};
-
 module.exports = async (message, botClient) => {
 	if (message.author.bot) return;
 
 	const userId = message.author.id;
-	const hashedUserId = hashUserId(userId);
 	const username = message.author.username;
 	const timestamp = new Date().toISOString();
 
@@ -24,14 +18,14 @@ module.exports = async (message, botClient) => {
 	const chatHistoryCollection = db.collection('openaiHistory');
 
 	// Helper function to fetch chat history
-	const getChatHistory = async (hashedUserId) => {
+	const getChatHistory = async (userId) => {
 		const history = await chatHistoryCollection.findOne({ userId });
 		return history?.messages || [];
 	};
 
 	// Helper function to update chat history
-	const updateChatHistory = async (hashedUserId, newMessage) => {
-		const history = await getChatHistory(hashedUserId);
+	const updateChatHistory = async (userId, newMessage) => {
+		const history = await getChatHistory(userId);
 
 		// System message (if not already present)
 		const systemMessage = {
@@ -47,18 +41,16 @@ module.exports = async (message, botClient) => {
 		const updatedHistory = [...history, newMessage].slice(-10);
 
 		await chatHistoryCollection.updateOne(
-			{ userId: hashedUserId },
-			{ $set: { userId: hashedUserId, messages: updatedHistory } },
+			{ userId },
+			{ $set: { userId, messages: updatedHistory } },
 			{ upsert: true }
 		);
 
 		return updatedHistory;
 	};
 
-	// Handle chat history and new message
+	// Get existing chat history
 	let history = await getChatHistory(userId);
-	const userMessage = { role: 'user', content: message.content, username, timestamp };
-	history = await updateChatHistory(userId, userMessage);
 
 	// Handle replies to bot messages
 	if (message.reference) {
@@ -66,6 +58,11 @@ module.exports = async (message, botClient) => {
 			const referencedMessage = await message.channel.messages.fetch(message.reference.messageId);
 
 			if (referencedMessage.author.id === botClient.user.id) {
+				// Add user message to history
+				const userMessage = { role: 'user', content: message.content, username, timestamp };
+				history = await updateChatHistory(userId, userMessage);
+
+				// Add the referenced bot message to history
 				const botMessage = {
 					role: 'assistant',
 					content: referencedMessage.content,
@@ -106,6 +103,10 @@ module.exports = async (message, botClient) => {
 	// Handle mentions
 	if (message.mentions.has(botClient.user)) {
 		try {
+			// Add user message to history only for mentions
+			const userMessage = { role: 'user', content: message.content, username, timestamp };
+			history = await updateChatHistory(userId, userMessage);
+
 			// Simulate typing
 			await message.channel.sendTyping();
 
