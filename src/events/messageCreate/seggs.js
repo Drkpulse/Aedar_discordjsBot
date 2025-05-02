@@ -190,67 +190,57 @@ const ignoredDomains = [
 if (urls) {
 	// Check each URL for malicious content
 	urls.forEach(url => {
-	  const urlObj = new URL(url);
-	  const domain = urlObj.hostname;
+		const urlObj = new URL(url);
+		const domain = urlObj.hostname;
 
-	  // Check if the domain is in the ignored list
-	  if (!ignoredDomains.includes(domain)) {
-		checkMaliciousLink(url, message, client);
-	  }
+		// Check if the domain is in the ignored list
+		if (!ignoredDomains.includes(domain)) {
+			checkMaliciousLink(url, message, client);
+		}
 	});
-  }
+}
+};
 
-  // Function to check if a link is malicious using VirusTotal API
-  async function checkMaliciousLink(url, message, client) {
-	const errorChannelId = process.env.ERROR_CHANNELID;
-	const apiKey = process.env.VIRUSTOTAL_API_KEY; // Ensure the API key is securely stored
+// Function to check if a link is malicious using VirusTotal API
+async function checkMaliciousLink(url, message, client) {
+  const errorChannelId = process.env.ERROR_CHANNELID;
+  try {
+	// Properly encode the URL
 	const encodedUrl = Buffer.from(url).toString('base64').replace(/=+$/, '');
 
-	const checkUrl = async () => {
-	  try {
-		// Send the request to VirusTotal
-		const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
-		  headers: {
-			'x-apikey': apiKey,
-		  },
-		});
+	// Send the request to VirusTotal
+	const response = await axios.get(`https://www.virustotal.com/api/v3/urls/${encodedUrl}`, {
+	  headers: {
+		'x-apikey': process.env.VIRUSTOTAL_API_KEY, // Ensure the API key is securely stored
+	  },
+	});
 
-		// Extract the malicious count
-		const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
+	// Extract the malicious count
+	const maliciousCount = response.data.data.attributes.last_analysis_stats.malicious;
 
-		if (maliciousCount > 1) {
-		  const reportLink = `https://www.virustotal.com/gui/url/${encodedUrl}`;
-		  message.reply(`<:malware:1311831679241031730> **ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso! <:malware:1311831679241031730> \n [Mais Info](<${reportLink}>)`);
-		}
-	  } catch (error) {
-		console.error('Error checking link:', error.response?.status || error.message);
+	if (maliciousCount > 1) {
+	  const reportLink = `https://www.virustotal.com/gui/url/${encodedUrl}`;
+	  message.reply(`<:malware:1311831679241031730> **ATENÇÃO**: O link que foi postado (${url}) é potencialmente perigoso! <:malware:1311831679241031730> \n [Mais Info](<${reportLink}>)`);
+	}
+  } catch (error) {
+	console.error('Error checking link:', error.response?.status || error.message);
 
-		try {
-		  // Fetch the error channel
-		  const errorChannel = await client.channels.fetch(errorChannelId);
-		  if (errorChannel) {
-			const errorMessage = error.response?.status === 404
-			  ? `URL não encontrada: ${url}`
-			  : `Erro ao verificar o link: ${url}\n${error.response?.status || error.message}`;
+	try {
+	  // Fetch the error channel
+	  const errorChannel = await client.channels.fetch(errorChannelId);
+	  if (errorChannel) {
+		const errorMessage = error.response?.status === 404
+		  ? `URL não encontrada: ${url}`
+		  : `Erro ao verificar o link: ${url}\n${error.response?.status || error.message}`;
 
-			errorChannel.send(`**Erro ao verificar link:**\n${errorMessage}`);
-		  } else {
-			console.error(`Error channel not found: ${errorChannelId}`);
-		  }
-		} catch (channelError) {
-		  console.error('Error sending message to error channel:', channelError.message);
-		}
+		errorChannel.send(`**Erro ao verificar link:**\n${errorMessage}`);
+	  } else {
+		console.error(`Error channel not found: ${errorChannelId}`);
 	  }
-	};
-
-	// First attempt to check the URL
-	await checkUrl();
-
-	// Retry after 1 second if there was an error
-	setTimeout(async () => {
-	  await checkUrl();
-	}, 1000);
-  };
+	} catch (channelError) {
+	  console.error('Error sending message to error channel:', channelError.message);
+	}
+  }
 };
 
 
