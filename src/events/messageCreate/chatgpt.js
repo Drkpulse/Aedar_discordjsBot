@@ -25,7 +25,7 @@ module.exports = async (message, botClient) => {
 
 	// Helper function to fetch chat history
 	const getChatHistory = async (hashedUserId) => {
-		const history = await chatHistoryCollection.findOne({ userId: hashedUserId });
+		const history = await chatHistoryCollection.findOne({ userId });
 		return history?.messages || [];
 	};
 
@@ -56,9 +56,9 @@ module.exports = async (message, botClient) => {
 	};
 
 	// Handle chat history and new message
-	let history = await getChatHistory(hashedUserId);
+	let history = await getChatHistory(userId);
 	const userMessage = { role: 'user', content: message.content, username, timestamp };
-	history = await updateChatHistory(hashedUserId, userMessage);
+	history = await updateChatHistory(userId, userMessage);
 
 	// Handle replies to bot messages
 	if (message.reference) {

@@ -14,13 +14,6 @@ module.exports = {
 		),
 
 	run: async ({interaction, client, handler}) => {
-		// Check if API key is available
-		if (!envManager.isEnvVarSet('OPENWEATHERMAP_API_KEY')) {
-			return interaction.reply({
-				content: 'This command is currently unavailable because the weather API key is not configured.',
-				ephemeral: true
-			});
-		}
 		await interaction.deferReply({ fetchReply: true });
 		const location = interaction.options.getString('local');
 		try {

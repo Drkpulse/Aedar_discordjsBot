@@ -8,30 +8,6 @@ module.exports = {
 	run: async ({ interaction, client, handler }) => {
 		await interaction.deferReply({ ephemeral: true });
 
-		// Get all commands and their states
-        const allCommandStates = await commandStateManager.getAllCommandStates();
-
-        // Function to check if a command is available (enabled and has required env vars)
-        const isCommandAvailable = async (cmdName) => {
-            const isEnabled = await commandStateManager.getCommandState(cmdName);
-            const hasRequiredEnvVars = envManager.canCommandRun(cmdName);
-            return isEnabled && hasRequiredEnvVars;
-        };
-
-        // Filter commands by category and availability
-        const getAvailableCommands = async (category, commands) => {
-            const availableCommands = [];
-
-            for (const cmd of commands) {
-                const isAvailable = await isCommandAvailable(cmd.name.replace('/', ''));
-                if (isAvailable) {
-                    availableCommands.push(cmd);
-                }
-            }
-
-            return availableCommands;
-        };
-
 		// List of commands categorized (add your commands here)
 		const commandCategories = {
 			Helpful: [

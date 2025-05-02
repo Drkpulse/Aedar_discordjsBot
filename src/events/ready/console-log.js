@@ -2,14 +2,12 @@ const { version } = require('../../../package.json');
 const axios = require('axios');
 const { clear } = require('console');
 const os = require('os');
-const envManager = require('../../helpers/envManager');
-const commandStateManager = require('../../helpers/commandStateManager');
 require('dotenv').config();
 
 module.exports = async (client, handler) => {
-    await displayAsciiArt();
-    console.system(clear);
-    delay(2000);
+	await displayAsciiArt();
+	console.system(clear);
+	delay(2000);
     console.log(`\x1b[36m╭─────────────────────────────────────\x1b[37m`);
     console.log(`\x1b[36m│ Booting up...\x1b[37m`);
     await simulateBootSequence();
@@ -17,25 +15,8 @@ module.exports = async (client, handler) => {
     console.log(`\x1b[36m│ \x1b[33mBot Version: ${version}\x1b[37m`);
     console.log(`\x1b[36m│\x1b[37m`);
     console.log(`\x1b[36m│ \x1b[34mSystem Information:\x1b[37m`);
-
-    await printSystemStats();
-
-    // Get command state information
-    const commandStates = await commandStateManager.getAllCommandStates();
-    const enabledCommands = Object.entries(commandStates).filter(([_, isActive]) => isActive).length;
-    const totalCommands = handler.applicationCommands.length;
-
     console.log(`\x1b[36m│\x1b[37m`);
-    console.log(`\x1b[36m│ \x1b[34mCommand Status:\x1b[37m`);
-    console.log(`\x1b[36m│ \x1b[32mEnabled Commands: ${enabledCommands}/${totalCommands}\x1b[37m`);
-
-    if (envManager.missingOptional.length > 0) {
-        console.log(`\x1b[36m│ \x1b[33mWarning: ${envManager.missingOptional.length} environment variables missing\x1b[37m`);
-        console.log(`\x1b[36m│ \x1b[33mSome features may be limited\x1b[37m`);
-    } else {
-        console.log(`\x1b[36m│ \x1b[32mAll environment variables configured correctly\x1b[37m`);
-    }
-
+    await printSystemStats();
     console.log(`\x1b[36m│\x1b[37m`);
     console.log(`\x1b[36m╰─────────────────────────────────────\x1b[37m\n`);
 };
