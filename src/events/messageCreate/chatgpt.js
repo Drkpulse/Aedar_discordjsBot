@@ -22,10 +22,15 @@ module.exports = async (message, botClient) => {
 
 	if (!isMention && !isReply) return;
 
-	// Track user data
+	// Check if message is already in a thread
+	const isInThread = message.channel.isThread();
+
+	// Track user and thread data
 	const userId = message.author.id;
 	const username = message.author.username;
 	const timestamp = new Date().toISOString();
+	// Use thread ID as conversation ID if in a thread, otherwise use user ID
+	const conversationId = isInThread ? message.channel.id : userId;
 
 	// Connect to database
 	const db = await getDatabase();
@@ -35,8 +40,8 @@ module.exports = async (message, botClient) => {
 	await message.channel.sendTyping();
 
 	try {
-		// Get chat history
-		const history = await getChatHistory(userId, chatHistoryCollection);
+		// Get chat history for this specific conversation (thread or user)
+		const history = await getChatHistory(conversationId, chatHistoryCollection);
 
 		// Process user message
 		const userMessage = {
@@ -47,7 +52,7 @@ module.exports = async (message, botClient) => {
 		};
 
 		// Update history with user message
-		let updatedHistory = await updateChatHistory(userId, userMessage, chatHistoryCollection);
+		let updatedHistory = await updateChatHistory(conversationId, userMessage, chatHistoryCollection);
 
 		// Check if explicit search is requested
 		const searchCommand = processSearchCommand(message.content);
@@ -60,12 +65,12 @@ module.exports = async (message, botClient) => {
 		const needsSearch = await needsWebSearch(message.content);
 		if (needsSearch) {
 			const searchQuery = await extractSearchQuery(message.content);
-			const results = await performWebSearch(searchQuery, userId, chatHistoryCollection, false);
+			const results = await performWebSearch(searchQuery, conversationId, chatHistoryCollection, false);
 			// We continue processing even after search - results are added to history
 		}
 
 		// Get the latest history with any search results included
-		updatedHistory = await getChatHistory(userId, chatHistoryCollection);
+		updatedHistory = await getChatHistory(conversationId, chatHistoryCollection);
 
 		// Generate AI response
 		const aiResponse = await openai.chat.completions.create({
@@ -118,16 +123,54 @@ module.exports = async (message, botClient) => {
 			}
 		}
 
-		// Send reply to user
-		await message.reply(replyContent);
+		// Create thread if not already in one
+		if (!isInThread) {
+			try {
+				// Generate a thread name based on the user's message
+				const threadName = await generateThreadName(message.content);
 
-		// Update history with bot's reply
-		await updateChatHistory(userId, {
-			role: 'assistant',
-			content: replyContent,
-			username: botClient.user.username,
-			timestamp: new Date().toISOString()
-		}, chatHistoryCollection);
+				// Create a thread directly from the user's message
+				const thread = await message.startThread({
+					name: threadName.substring(0, 100), // Discord thread names are limited to 100 chars
+					autoArchiveDuration: 1440 // Archive after 24 hours (in minutes)
+				});
+
+				// Send the AI response directly in the thread
+				await thread.send(replyContent);
+
+				// Update history with bot's reply but now use the thread ID
+				await updateChatHistory(thread.id, {
+					role: 'assistant',
+					content: replyContent,
+					username: botClient.user.username,
+					timestamp: new Date().toISOString()
+				}, chatHistoryCollection);
+
+			} catch (threadError) {
+				console.error('Error creating thread:', threadError);
+				// Fallback to regular reply if thread creation fails
+				await message.reply(replyContent);
+
+				// Update history with bot's reply using user ID
+				await updateChatHistory(userId, {
+					role: 'assistant',
+					content: replyContent,
+					username: botClient.user.username,
+					timestamp: new Date().toISOString()
+				}, chatHistoryCollection);
+			}
+		} else {
+			// Standard reply in existing thread
+			await message.reply(replyContent);
+
+			// Update history with bot's reply using thread ID
+			await updateChatHistory(message.channel.id, {
+				role: 'assistant',
+				content: replyContent,
+				username: botClient.user.username,
+				timestamp: new Date().toISOString()
+			}, chatHistoryCollection);
+		}
 
 	} catch (error) {
 		console.error('Error processing message:', error);
@@ -135,9 +178,9 @@ module.exports = async (message, botClient) => {
 	}
 };
 
-// Helper function to fetch chat history
-async function getChatHistory(userId, collection) {
-	const history = await collection.findOne({ userId });
+// Helper function to fetch chat history - now accepts conversationId instead of userId
+async function getChatHistory(conversationId, collection) {
+	const history = await collection.findOne({ conversationId });
 	let messages = history?.messages || [];
 
 	// Ensure system message is present and at the beginning
@@ -201,9 +244,9 @@ function splitMessage(message, maxLength = MAX_DISCORD_MESSAGE_LENGTH) {
 	);
 }
 
-// Helper function to update chat history
-async function updateChatHistory(userId, newMessage, collection) {
-	const history = await getChatHistory(userId, collection);
+// Helper function to update chat history - now accepts conversationId instead of userId
+async function updateChatHistory(conversationId, newMessage, collection) {
+	const history = await getChatHistory(conversationId, collection);
 
 	// Add the new message (system message is already handled in getChatHistory)
 	const updatedHistory = history.filter(msg => msg.role !== 'system');
@@ -219,8 +262,8 @@ async function updateChatHistory(userId, newMessage, collection) {
 	cappedHistory.unshift(systemMessage);
 
 	await collection.updateOne(
-		{ userId },
-		{ $set: { userId, messages: cappedHistory } },
+		{ conversationId },
+		{ $set: { conversationId, messages: cappedHistory } },
 		{ upsert: true }
 	);
 
@@ -268,8 +311,8 @@ async function performSearch(query, message) {
 	}
 }
 
-// Function to perform web search in the background
-async function performWebSearch(query, userId, collection, sendDirect = false) {
+// Function to perform web search in the background - update to use conversationId
+async function performWebSearch(query, conversationId, collection, sendDirect = false) {
 	try {
 		const searchResults = await searchWeb(query);
 
@@ -280,7 +323,7 @@ async function performWebSearch(query, userId, collection, sendDirect = false) {
 			).join('\n\n');
 
 			// Add search results to history as a system message
-			await updateChatHistory(userId, {
+			await updateChatHistory(conversationId, {
 				role: 'system',
 				content: `Aqui estão resultados de uma pesquisa na web para "${query}":\n\n${formattedResults}\n\nUse esta informação para responder ao utilizador em Português de Portugal.`
 			}, collection);
@@ -387,5 +430,31 @@ async function extractSearchQuery(messageContent) {
 	} catch (error) {
 		console.error('Error extracting search query:', error);
 		return messageContent;
+	}
+}
+
+// Function to generate a thread name based on the message content
+async function generateThreadName(messageContent) {
+	try {
+		const response = await openai.chat.completions.create({
+			model: 'gpt-4o-mini',
+			messages: [
+				{
+					role: 'system',
+					content: 'Create a concise, descriptive thread name (max 5 words) based on this message content. Respond with only the thread name, nothing else. The thread name should be in European Portuguese (pt-PT).'
+				},
+				{
+					role: 'user',
+					content: messageContent
+				}
+			],
+			temperature: 0.7,
+			max_tokens: 30
+		});
+
+		return response.choices[0].message.content.trim();
+	} catch (error) {
+		console.error('Error generating thread name:', error);
+		return 'Conversa com IA'; // Default thread name if generation fails
 	}
 }
