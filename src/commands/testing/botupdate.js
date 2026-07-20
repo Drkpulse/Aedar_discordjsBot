@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const path = require('path');
 
 module.exports = {
@@ -11,8 +11,8 @@ module.exports = {
 		// Define the path to the bash script
 		const scriptPath = path.join(__dirname, 'src', 'upbot.sh'); // Adjust this path as necessary
 
-		// Execute the bash script
-		exec(scriptPath, (error, stdout, stderr) => {
+		// Execute the bash script without shell interpolation
+		execFile('bash', [scriptPath], (error, stdout, stderr) => {
 			if (error) {
 				console.error(`Error: ${error.message}`);
 				interaction.reply('Error updating the repository: ' + error.message);
