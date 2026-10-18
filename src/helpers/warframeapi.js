@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const WARFRAME_API_URL = 'https://api.warframestat.us/pc';
 
@@ -72,12 +72,4 @@ async function getWarframeArbitration() {
     }
 }
 
-module.exports = {
-    getWarframeAlerts,
-    getVoidFissures,
-    getWarframeInvasions,
-    getWarframeSortie,
-    getWarframeNightwave,
-    getWarframeBaro,
-    getWarframeArbitration
-};
+export { getWarframeAlerts, getVoidFissures, getWarframeInvasions, getWarframeSortie, getWarframeNightwave, getWarframeBaro, getWarframeArbitration };

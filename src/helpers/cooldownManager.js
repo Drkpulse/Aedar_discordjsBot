@@ -43,4 +43,4 @@ class CooldownManager {
 }
 
 // Export an instance of the CooldownManager
-module.exports = new CooldownManager();
+export default new CooldownManager();

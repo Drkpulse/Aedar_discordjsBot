@@ -1,5 +1,7 @@
-const { Translate } = require('@google-cloud/translate').v2;
-const { EmbedBuilder } = require('discord.js');
+import googleTranslate from '@google-cloud/translate';
+import { EmbedBuilder } from 'discord.js';
+
+const { Translate } = googleTranslate.v2;
 
 const translate = new Translate({ key: process.env.GOOGLE_API_KEY });
 
@@ -96,7 +98,7 @@ const flagToLanguage = {
     // Add more flags and their corresponding languages as needed
 };
 
-module.exports = async (reaction, user, client) => {
+export default async (reaction, user, client) => {
     // Create a variable to store the initial reply
     let initialReply;
 

@@ -4,8 +4,15 @@
   "author": "Drkpulse",
   "homepage": "https://github.com/Drkpulse/Aedar_discordjsBot",
   "description": "Aedar multi-purpose Discord Bot",
-  "main": "src/index.js",
+  "type": "module",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
+    "dev": "commandkit dev",
+    "build": "commandkit build",
+    "start": "commandkit start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,9 +27,8 @@
   "dependencies": {
     "@google-cloud/translate": "^8.2.0",
     "axios": "^1.7.4",
-    "commandkit": "^0.1.10",
-    "discord.js": "^14.19.1",
-    "dotenv": "^16.4.5",
+    "commandkit": "^1.2.6",
+    "discord.js": "^14.27.0",
     "mongodb": "^6.11.0",
     "node-fetch": "^3.3.2",
     "node-schedule": "^2.1.1",
