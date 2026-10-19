@@ -7,7 +7,8 @@ export const command = new SlashCommandBuilder()
 	.addStringOption(option =>
 		option.setName('item')
 			.setDescription('The item to look up (e.g., "Neuroptics", "Relic", "Continuity")')
-			.setRequired(true)).toJSON();
+			.setRequired(true)
+			.setMaxLength(100)).toJSON();
 
 export const chatInput = async ({ interaction }) => {
 	await interaction.deferReply();

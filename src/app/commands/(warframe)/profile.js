@@ -7,7 +7,8 @@ export const command = new SlashCommandBuilder()
 	.addStringOption(option =>
 		option.setName('username')
 			.setDescription('The Warframe username to look up')
-			.setRequired(true)).toJSON();
+			.setRequired(true)
+			.setMaxLength(64)).toJSON();
 
 export const chatInput = async ({ interaction }) => {
 	await interaction.deferReply();
