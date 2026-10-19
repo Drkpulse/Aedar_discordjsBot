@@ -1,5 +1,6 @@
-import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from 'discord.js';
 import axios from 'axios';
+import { getDatabase } from '../../../helpers/mongoClient.js';
 
 const API_URL = 'https://deckofcardsapi.com/api/deck';
 
@@ -60,7 +61,6 @@ const cardEmojis = {
 	'KC': '<:kingofclubs:1312377355070734406>',
   };
 
-
 // Function to get the custom emoji for a card
 const getCardEmoji = (card) => cardEmojis[card.code] || '<:playingcard:1312377661993127946>';
 
@@ -94,49 +94,182 @@ const calculateScore = (hand) => {
 	return score;
 };
 
-export const command = new SlashCommandBuilder()
-	.setName('blackjack')
-	.setDescription('Jogue uma partida de Blackjack!').toJSON();
+// Function to get or create player stats
+async function getPlayerStats(userId) {
+	const db = await getDatabase();
+	const statsCollection = db.collection('blackjack_stats');
 
-export const chatInput = async ({ interaction }) => {
-	await createDeck(); // Create a new deck
+	const playerStats = await statsCollection.findOne({ userId });
 
-	const playerHand = [await drawCard(), await drawCard()];
-	const dealerHand = [await drawCard(), await drawCard()];
+	if (playerStats) {
+		return playerStats;
+	} else {
+		// Create new stats document for first-time players
+		const newStats = {
+			userId,
+			gamesPlayed: 0,
+			gamesWon: 0,
+			gamesLost: 0,
+			gamesTied: 0,
+			blackjacks: 0,
+			busts: 0,
+			lastPlayed: new Date()
+		};
 
-	let playerScore = calculateScore(playerHand);
-	let dealerScore = calculateScore(dealerHand);
+		await statsCollection.insertOne(newStats);
+		return newStats;
+	}
+}
 
-	const checkNatural = (hand, score) =>
-		hand.length === 2 && score === 21;
+// Function to update player stats after game
+async function updatePlayerStats(userId, result, hadBlackjack = false, busted = false) {
+	const db = await getDatabase();
+	const statsCollection = db.collection('blackjack_stats');
 
-	// Check for Natural Blackjack
-	if (checkNatural(playerHand, playerScore) && checkNatural(dealerHand, dealerScore)) {
-		await interaction.reply({
-			content: `**Empate!** Ambos têm Blackjack!\n**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')}\n**Cartas do dealer:** ${dealerHand.map(getCardEmoji).join(' ')}`,
-			ephemeral: true
-		});
-		return;
-	} else if (checkNatural(playerHand, playerScore)) {
-		await interaction.reply({
-			content: `**Você ganhou com um Blackjack!**\n**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')}\n**Cartas do dealer:** ${dealerHand.map(getCardEmoji).join(' ')}`,
-			ephemeral: true
-		});
-		return;
-	} else if (checkNatural(dealerHand, dealerScore)) {
-		await interaction.reply({
-			content: `**O dealer ganhou com um Blackjack!**\n**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')}\n**Cartas do dealer:** ${dealerHand.map(getCardEmoji).join(' ')}`,
-			ephemeral: true
-		});
-		return;
+	const inc = {
+		gamesPlayed: 1,
+		gamesWon: 0,
+		gamesLost: 0,
+		gamesTied: 0,
+		blackjacks: hadBlackjack ? 1 : 0,
+		busts: 0
+	};
+
+	// Update specific stats based on game result
+	if (result === 'win') {
+		inc.gamesWon = 1;
+	} else if (result === 'lose') {
+		inc.gamesLost = 1;
+		if (busted) {
+			inc.busts = 1;
+		}
+	} else if (result === 'tie') {
+		inc.gamesTied = 1;
 	}
 
-	let gameMessage = `**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n`;
-	gameMessage += `**Cartas do dealer:** ${getCardEmoji(dealerHand[0])}, ?\n`;
+	const updateData = {
+		$inc: inc,
+		$set: { lastPlayed: new Date() }
+	};
 
-	const row = new ActionRowBuilder()
-		.addComponents(
-			new ButtonBuilder()
+	await statsCollection.updateOne(
+		{ userId },
+		updateData,
+		{ upsert: true }
+	);
+}
+
+export const command = new SlashCommandBuilder()
+        .setName('blackjack')
+        .setDescription('Jogue uma partida de Blackjack!')
+        .addSubcommand(option =>
+            option
+                .setName('play')
+                .setDescription('Iniciar uma nova partida de Blackjack'))
+        .addSubcommand(option =>
+            option
+                .setName('stats')
+                .setDescription('Ver suas estatísticas de Blackjack')).toJSON();
+
+export const chatInput = async ({ interaction }) => {
+        // Check if the user is requesting stats
+        if (interaction.options.getSubcommand() === 'stats') {
+            try {
+                const userId = interaction.user.id;
+                const stats = await getPlayerStats(userId);
+
+				const winRate = stats.gamesPlayed > 0
+					? ((stats.gamesWon / stats.gamesPlayed) * 100).toFixed(1)
+					: 0;
+
+				const statsEmbed = new EmbedBuilder()
+					.setColor('#0099ff')
+					.setTitle('🃏 Suas Estatísticas de Blackjack')
+					.setDescription(`Estatísticas para ${interaction.user.username}`)
+					.addFields(
+						{ name: 'Partidas Jogadas', value: stats.gamesPlayed.toString(), inline: true },
+						{ name: 'Vitórias', value: stats.gamesWon.toString(), inline: true },
+						{ name: 'Derrotas', value: stats.gamesLost.toString(), inline: true },
+						{ name: 'Empates', value: stats.gamesTied.toString(), inline: true },
+						{ name: 'Taxa de Vitória', value: `${winRate}%`, inline: true },
+						{ name: 'Blackjacks', value: stats.blackjacks.toString(), inline: true },
+						{ name: 'Estouros (Busts)', value: stats.busts.toString(), inline: true }
+					)
+					.setFooter({ text: 'Use /blackjack play para iniciar uma nova partida!' });
+
+				await interaction.reply({ embeds: [statsEmbed], ephemeral: true });
+				return;
+			} catch (error) {
+				console.error('Error retrieving blackjack stats:', error);
+				await interaction.reply({
+					content: 'Ocorreu um erro ao buscar suas estatísticas. Tente novamente mais tarde.',
+					ephemeral: true
+				});
+				return;
+			}
+		}
+
+		// Default behavior: start a game
+		await createDeck(); // Create a new deck
+
+		const playerHand = [await drawCard(), await drawCard()];
+		const dealerHand = [await drawCard(), await drawCard()];
+
+		let playerScore = calculateScore(playerHand);
+		let dealerScore = calculateScore(dealerHand);
+
+		const checkNatural = (hand, score) =>
+			hand.length === 2 && score === 21;
+
+		const userId = interaction.user.id;
+
+		// Check for Natural Blackjack
+		if (checkNatural(playerHand, playerScore) && checkNatural(dealerHand, dealerScore)) {
+			const embed = new EmbedBuilder()
+				.setColor('#0099ff')
+				.setTitle('**Empate!**')
+				.setDescription(`Ambos têm Blackjack!`)
+				.addFields(
+					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
+					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
+				);
+			await updatePlayerStats(userId, 'tie', true);
+			await interaction.reply({ embeds: [embed], ephemeral: true });
+			return;
+		} else if (checkNatural(playerHand, playerScore)) {
+			const embed = new EmbedBuilder()
+				.setColor('#00ff00')
+				.setTitle('**Você ganhou com um Blackjack!**')
+				.addFields(
+					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
+					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
+				);
+			await updatePlayerStats(userId, 'win', true);
+			await interaction.reply({ embeds: [embed], ephemeral: true });
+			return;
+		} else if (checkNatural(dealerHand, dealerScore)) {
+			const embed = new EmbedBuilder()
+				.setColor('#ff0000')
+				.setTitle('**O dealer ganhou com um Blackjack!**')
+				.addFields(
+					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
+					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
+				);
+			await updatePlayerStats(userId, 'lose');
+			await interaction.reply({ embeds: [embed], ephemeral: true });
+			return;
+		}
+
+		// Regular game flow continues...
+		const gameEmbed = new EmbedBuilder()
+			.setColor('#0099ff')
+			.setTitle('**Sua vez!**')
+			.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n**Cartas do dealer:** ${getCardEmoji(dealerHand[0])}, ?`)
+			.setFooter({ text: 'Escolha uma ação abaixo:' });
+
+		const row = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
 				.setCustomId('hit')
 				.setLabel('Pedir Carta')
 				.setStyle(ButtonStyle.Success),
@@ -146,58 +279,71 @@ export const chatInput = async ({ interaction }) => {
 				.setStyle(ButtonStyle.Danger)
 		);
 
-	const reply = await interaction.reply({ content: gameMessage, components: [row], ephemeral: true, fetchReply: true });
+		const reply = await interaction.reply({ embeds: [gameEmbed], components: [row], ephemeral: true, fetchReply: true });
 
-	const filter = (buttonInteraction) => buttonInteraction.user.id === interaction.user.id;
+		const filter = (buttonInteraction) => buttonInteraction.user.id === interaction.user.id;
+		const collector = reply.createMessageComponentCollector({ filter, time: 30000 });
 
-	const collector = reply.createMessageComponentCollector({ filter, time: 30000 });
-
-	collector.on('collect', async (buttonInteraction) => {
-		if (buttonInteraction.customId === 'hit') {
-			const newCard = await drawCard();
-			playerHand.push(newCard);
-			playerScore = calculateScore(playerHand);
-
-			if (playerScore > 21) {
-				await buttonInteraction.update({
-					content: `**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\nVocê estourou! O dealer ganha.`,
-					components: []
-				});
-				collector.stop();
-			} else {
-				await buttonInteraction.update({
-					content: `**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n**Cartas do dealer:** ${getCardEmoji(dealerHand[0])}, <:playingcard:1312377661993127946>`,
-					components: [row]
-				});
-			}
-		} else if (buttonInteraction.customId === 'stand') {
-			// Dealer's turn
-			while (dealerScore < 17 || (dealerScore === 17 && dealerHand.some(card => card.value === 'ACE'))) {
+		collector.on('collect', async (buttonInteraction) => {
+			if (buttonInteraction.customId === 'hit') {
 				const newCard = await drawCard();
-				dealerHand.push(newCard);
-				dealerScore = calculateScore(dealerHand);
+				playerHand.push(newCard);
+				playerScore = calculateScore(playerHand);
+
+				if (playerScore > 21) {
+					const bustEmbed = new EmbedBuilder()
+						.setColor('#ff0000')
+						.setTitle('Você estourou!')
+						.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\nO dealer ganha.`)
+						.setFooter({ text: 'Fim do jogo' });
+					await updatePlayerStats(userId, 'lose', false, true);
+					await buttonInteraction.update({ embeds: [bustEmbed], components: [] });
+					collector.stop();
+				} else {
+					const updatedEmbed = new EmbedBuilder()
+						.setColor('#0099ff')
+						.setTitle('**Sua vez!**')
+						.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n**Cartas do dealer:** ${getCardEmoji(dealerHand[0])}, ?`)
+						.setFooter({ text: 'Escolha uma ação abaixo:' });
+					await buttonInteraction.update({ embeds: [updatedEmbed], components: [row] });
+				}
+			} else if (buttonInteraction.customId === 'stand') {
+				// Dealer's turn
+				while (dealerScore < 17 || (dealerScore === 17 && dealerHand.some(card => card.value === 'ACE'))) {
+					const newCard = await drawCard();
+					dealerHand.push(newCard);
+					dealerScore = calculateScore(dealerHand);
+				}
+
+				let resultEmbed = new EmbedBuilder()
+					.setColor('#0099ff')
+					.setTitle('**Resultado do Jogo**')
+					.addFields(
+						{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' ') + ` (Total: ${playerScore})`, inline: true },
+						{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' ') + ` (Total: ${dealerScore})`, inline: true }
+					);
+
+				let gameResult;
+				if (dealerScore > 21 || playerScore > dealerScore) {
+					resultEmbed.setDescription('Você ganhou!');
+					gameResult = 'win';
+				} else if (playerScore < dealerScore) {
+					resultEmbed.setDescription('O dealer ganhou!');
+					gameResult = 'lose';
+				} else {
+					resultEmbed.setDescription('É um empate!');
+					gameResult = 'tie';
+				}
+
+				await updatePlayerStats(userId, gameResult);
+				await buttonInteraction.update({ embeds: [resultEmbed], components: [] });
+				collector.stop();
 			}
+		});
 
-			let resultMessage = `**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n`;
-			resultMessage += `**Cartas do dealer:** ${dealerHand.map(getCardEmoji).join(' ')} (Total: ${dealerScore})\n`;
-
-			if (dealerScore > 21 || playerScore > dealerScore) {
-				resultMessage += 'Você ganhou!';
-			} else if (playerScore < dealerScore) {
-				resultMessage += 'O dealer ganhou!';
-			} else {
-				resultMessage += 'É um empate!';
+		collector.on('end', async (_, reason) => {
+			if (reason !== 'user') {
+				await interaction.followUp({ content: 'O tempo para jogar acabou!', ephemeral: true });
 			}
-
-			await buttonInteraction.update({ content: resultMessage, components: [] });
-			collector.stop();
-		}
-
-	});
-
-	collector.on('end', async (_, reason) => {
-		if (reason !== 'user') {
-			await interaction.followUp({ content: 'O tempo para jogar acabou!', ephemeral: true });
-		}
-	});
-};
+		});
+	};
