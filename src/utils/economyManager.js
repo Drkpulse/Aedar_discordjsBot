@@ -88,14 +88,16 @@ const economyManager = {
                 throw new Error('Insufficient balance');
             }
 
+            // Only debit when the balance still covers it, so two commands at once can't go below zero
             const result = await users.findOneAndUpdate(
-                { userId },
+                { userId, balance: { $gte: amount } },
                 {
                     $inc: { balance: -amount },
                     $set: { updatedAt: new Date() }
                 },
                 { returnDocument: 'after' }
             );
+            if (!result) throw new Error('Insufficient balance');
 
             return result.balance;
         } catch (error) {
@@ -167,7 +169,7 @@ const economyManager = {
                 await session.withTransaction(async () => {
                     // Remove from sender
                     const fromResult = await users.findOneAndUpdate(
-                        { userId: fromUserId },
+                        { userId: fromUserId, balance: { $gte: amount } },
                         {
                             $inc: { balance: -amount },
                             $set: { updatedAt: new Date() }
@@ -177,6 +179,7 @@ const economyManager = {
                             returnDocument: 'after'
                         }
                     );
+                    if (!fromResult) throw new Error('Insufficient balance');
 
                     // Add to recipient
                     const toResult = await users.findOneAndUpdate(
