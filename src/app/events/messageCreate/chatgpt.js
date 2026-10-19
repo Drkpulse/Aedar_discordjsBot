@@ -1,12 +1,11 @@
 import { OpenAI } from 'openai';
 import { getDatabase } from '../../../helpers/mongoClient.js';
 
-const openai = new OpenAI({
-	apiKey: process.env.OPENAI_API_KEY,
-});
+// Only create the OpenAI client when a key is set, so the bot still starts without one.
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 
 export default async (message, botClient) => {
-	if (message.author.bot) return;
+	if (message.author.bot || !openai) return;
 
 	const userId = message.author.id;
 	const username = message.author.username;
