@@ -173,8 +173,9 @@ export default async (message, botClient) => {
 			}
 
 			if (thread) {
-				// Seed the thread with the context used for this answer, including the opening question
-				await appendChatHistory(thread.id, [...history, ...turn], chatHistoryCollection);
+				// Seed the thread with this exchange only. The user's earlier history can come from
+				// other channels, so it stays out of a thread that other people can read and join.
+				await appendChatHistory(thread.id, turn, chatHistoryCollection);
 				await thread.send(replyContent);
 			} else {
 				// Fallback to regular reply if thread creation fails
