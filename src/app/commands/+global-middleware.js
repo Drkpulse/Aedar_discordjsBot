@@ -1,6 +1,7 @@
 import { stopMiddlewares } from 'commandkit';
 import { Collection, MessageFlags } from 'discord.js';
 import { isCommandActive } from '../../helpers/commandManager.js';
+import { isCategoryEnabled } from '../../helpers/featureManager.js';
 import { DEV_USER_IDS } from '../../helpers/devConfig.js';
 
 // Runs before every command. Replaces the old src/validations folder (active.js and cooldowns.js).
@@ -35,8 +36,9 @@ export async function beforeExecute(ctx) {
 		stopMiddlewares();
 	}
 
-	// 2. Disabled commands (globally in the file, or per server with /toggle)
-	if (options.isActive === false || !isCommandActive(commandName, interaction.guildId)) {
+	// 2. Disabled commands (globally in the file, per server with /toggle, or their whole category with /features)
+	const category = ctx.command.command?.category;
+	if (options.isActive === false || !isCommandActive(commandName, interaction.guildId) || !isCategoryEnabled(category, interaction.guildId)) {
 		const randomMessage = inactiveMessages[Math.floor(Math.random() * inactiveMessages.length)];
 		await interaction.reply({ content: randomMessage, flags: MessageFlags.Ephemeral });
 		stopMiddlewares();

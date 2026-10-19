@@ -6,6 +6,7 @@ This bot is designed to enhance the Patins No Porto discord server, and other fa
 
 - Slash commands
 - And some other random things
+- `/features`: a menu where server admins turn any part of the bot on or off (every command category, plus automatic features like welcome messages, AI chat and translations)
 
 ## Getting Started
 
@@ -91,6 +92,8 @@ export const options = {
 ```
 
 Events go in `src/app/events/<eventName>/`, and the checks that run before every command (cooldowns, disabled commands, dev-only commands) are in `src/app/commands/+global-middleware.js`.
+
+New event-driven features should get an entry in `AUTOMATIC_FEATURES` in `src/helpers/featureManager.js` and start with `if (!isAutomaticFeatureEnabled('<name>', guildId)) return;`, so they show up in `/features`. A new `(category)` folder shows up there on its own.
 
 ### Contributing
 

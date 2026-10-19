@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 const VIRUSTOTAL_API_KEY = process.env.VIRUSTOTAL_API_KEY;
 
@@ -8,6 +9,9 @@ export default (message, client) => {
 
 	if (message.author.bot)
 		return true;
+
+	if (!isAutomaticFeatureEnabled('autoReplies', message.guildId))
+		return;
 
 	// Check if both "josé" and "beirão" are present in the message content
 	if (content.includes('josé') && content.includes('beirão')) {

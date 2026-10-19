@@ -1,7 +1,9 @@
 import { getDatabase } from '../../../helpers/mongoClient.js';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 export default async (interaction, io) => {
   if (!interaction.isCommand()) return;
+  if (!isAutomaticFeatureEnabled('commandLogging', interaction.guildId)) return;
 
   const dateTime = new Date().toISOString().replace('T', ' ').split('.')[0];
   const user = interaction.user.tag;

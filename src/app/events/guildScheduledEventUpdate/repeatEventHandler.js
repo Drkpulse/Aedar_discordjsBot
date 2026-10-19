@@ -1,5 +1,6 @@
 import { GuildScheduledEventStatus, CDN, GuildScheduledEventManager } from 'discord.js';
 import { eventRoleName } from '../../../helpers/eventRoles.js';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 const EVENT_START_HOURLY = 3600000;
 const EVENT_START_DAILY = 86400000;
@@ -8,6 +9,7 @@ const EVENT_START_MONTHLY = 2628000000;
 
 export default async (before, after, client) => {
 	console.log(`Scheduled event ${before.name} updated`);
+	if (!isAutomaticFeatureEnabled('eventRepeat', after.guildId)) return;
 
 	// Trigger on starting an event
 	if (before.status === GuildScheduledEventStatus.Active && after.status === GuildScheduledEventStatus.Completed) {
