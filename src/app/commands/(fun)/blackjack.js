@@ -331,13 +331,14 @@ export const chatInput = async ({ interaction }) => {
 					await buttonInteraction.editReply({ embeds: [updatedEmbed], components: [row] });
 				}
 			} else if (buttonInteraction.customId === 'stand') {
-				finished = true;
-				// Dealer's turn
+				// Dealer's turn. `busy` blocks other clicks meanwhile; the game only counts as
+				// finished once the draws succeed, so a failed draw can be retried.
 				while (dealerScore < 17 || (dealerScore === 17 && dealerHand.some(card => card.value === 'ACE'))) {
 					const newCard = await drawCard();
 					dealerHand.push(newCard);
 					dealerScore = calculateScore(dealerHand);
 				}
+				finished = true;
 
 				let resultEmbed = new EmbedBuilder()
 					.setColor('#0099ff')
