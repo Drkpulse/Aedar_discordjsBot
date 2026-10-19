@@ -70,6 +70,28 @@ export const chatInput = async ({ interaction, client }) => {
 					{ name: 'Jogador', description: 'Jogador que queres jogar contra' }
 				]
 			},
+			{
+				name: '/slots <:new_badge:1311442095051116666> ',
+				description: 'Aposta moedas nas slots: dois iguais pagam x2, três iguais x10',
+				parameters: [
+					{ name: 'bet', description: 'Moedas a apostar' }
+				]
+			},
+			{
+				name: '/roulette <:new_badge:1311442095051116666> ',
+				description: 'Aposta moedas na roleta: número paga x36, cor ou par/ímpar x2',
+				parameters: [
+					{ name: 'bet', description: 'Número (0-36), vermelho, preto, par ou impar' },
+					{ name: 'amount', description: 'Moedas a apostar' }
+				]
+			},
+			{
+				name: '/hilo <:new_badge:1311442095051116666> ',
+				description: 'Adivinha se a próxima carta é maior ou menor e levanta quando quiseres',
+				parameters: [
+					{ name: 'bet', description: 'Moedas a apostar' }
+				]
+			},
 		],
 		Utility: [
 			{
