@@ -1,4 +1,5 @@
 import { GuildScheduledEventDelete } from 'discord.js';
+import { eventRoleName } from '../../../helpers/eventRoles.js';
 
 export default async (event, client) => {
     try {
@@ -6,7 +7,7 @@ export default async (event, client) => {
         const guild = client.guilds.cache.get(event.guild.id);
 
         // Find the role associated with the event name
-        const roleName = `${event.name} Evento`;
+        const roleName = eventRoleName(event.name);
         const role = guild.roles.cache.find(role => role.name === roleName);
 
         if (role) {
