@@ -1,23 +1,19 @@
 #!/bin/bash
+# Pulls the latest code, installs dependencies and rebuilds the bot.
+# It does not start the bot: /botupdate restarts the running process afterwards
+# (under pm2 or systemd), so there is never a second copy of the bot running.
+set -euo pipefail
 
-# Navigate to the root of the Git repository (the folder above this script)
-cd "$(dirname "$0")/.." || exit 1
+# Go to the root of the Git repository (the folder above this script)
+cd "$(dirname "$0")/.."
 
-# Check if the directory is a Git repository
 if [ ! -d ".git" ]; then
-	echo "Error: Not a Git repository."
+	echo "Error: Not a Git repository." >&2
 	exit 1
 fi
 
-# Pull the latest changes from the remote repository
-git pull
+git pull --ff-only
+npm ci --no-audit --no-fund
+npm run build
 
-# Check if the pull was successful
-if [ $? -eq 0 ]; then
-	echo "Repository updated successfully."
-
-	# Install dependencies, build with CommandKit and start the bot
-	npm install && npm run build && npm start
-else
-	echo "Error: Failed to update repository."
-fi
+echo "Update and build finished."
