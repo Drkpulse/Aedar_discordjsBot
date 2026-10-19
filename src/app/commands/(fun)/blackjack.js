@@ -210,7 +210,9 @@ export const chatInput = async ({ interaction }) => {
 			}
 		}
 
-		// Default behavior: start a game
+		// Default behavior: start a game.
+		// Acknowledge first: dealing and saving stats can take longer than Discord's 3-second window.
+		await interaction.deferReply({ ephemeral: true });
 		await createDeck(); // Create a new deck
 
 		const playerHand = [await drawCard(), await drawCard()];
@@ -235,7 +237,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
 			await saveResult(embed, userId, 'tie', true);
-			await interaction.reply({ embeds: [embed], ephemeral: true });
+			await interaction.editReply({ embeds: [embed] });
 			return;
 		} else if (checkNatural(playerHand, playerScore)) {
 			const embed = new EmbedBuilder()
@@ -246,7 +248,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
 			await saveResult(embed, userId, 'win', true);
-			await interaction.reply({ embeds: [embed], ephemeral: true });
+			await interaction.editReply({ embeds: [embed] });
 			return;
 		} else if (checkNatural(dealerHand, dealerScore)) {
 			const embed = new EmbedBuilder()
@@ -257,7 +259,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
 			await saveResult(embed, userId, 'lose');
-			await interaction.reply({ embeds: [embed], ephemeral: true });
+			await interaction.editReply({ embeds: [embed] });
 			return;
 		}
 
@@ -280,7 +282,7 @@ export const chatInput = async ({ interaction }) => {
 				.setStyle(ButtonStyle.Danger)
 		);
 
-		const reply = await interaction.reply({ embeds: [gameEmbed], components: [row], ephemeral: true, fetchReply: true });
+		const reply = await interaction.editReply({ embeds: [gameEmbed], components: [row] });
 
 		const filter = (buttonInteraction) => buttonInteraction.user.id === interaction.user.id;
 		const collector = reply.createMessageComponentCollector({ filter, time: 30000 });
@@ -303,6 +305,8 @@ export const chatInput = async ({ interaction }) => {
 		});
 
 		async function handleButton(buttonInteraction) {
+			// Acknowledge the click before drawing cards or saving stats
+			await buttonInteraction.deferUpdate();
 			if (buttonInteraction.customId === 'hit') {
 				const newCard = await drawCard();
 				playerHand.push(newCard);
@@ -316,7 +320,7 @@ export const chatInput = async ({ interaction }) => {
 						.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\nO dealer ganha.`)
 						.setFooter({ text: 'Fim do jogo' });
 					await saveResult(bustEmbed, userId, 'lose', false, true);
-					await buttonInteraction.update({ embeds: [bustEmbed], components: [] });
+					await buttonInteraction.editReply({ embeds: [bustEmbed], components: [] });
 					collector.stop();
 				} else {
 					const updatedEmbed = new EmbedBuilder()
@@ -324,7 +328,7 @@ export const chatInput = async ({ interaction }) => {
 						.setTitle('**Sua vez!**')
 						.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\n**Cartas do dealer:** ${getCardEmoji(dealerHand[0])}, ?`)
 						.setFooter({ text: 'Escolha uma ação abaixo:' });
-					await buttonInteraction.update({ embeds: [updatedEmbed], components: [row] });
+					await buttonInteraction.editReply({ embeds: [updatedEmbed], components: [row] });
 				}
 			} else if (buttonInteraction.customId === 'stand') {
 				finished = true;
@@ -356,7 +360,7 @@ export const chatInput = async ({ interaction }) => {
 				}
 
 				await saveResult(resultEmbed, userId, gameResult);
-				await buttonInteraction.update({ embeds: [resultEmbed], components: [] });
+				await buttonInteraction.editReply({ embeds: [resultEmbed], components: [] });
 				collector.stop();
 			}
 		}

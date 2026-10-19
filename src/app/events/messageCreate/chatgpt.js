@@ -63,15 +63,18 @@ export default async (message, botClient) => {
 		// Messages this turn adds to the conversation
 		const newMessages = [];
 
-		// Include the bot message being replied to when it is not already in context
-		if (isReply && referencedMessage.content &&
-			!history.some(msg => msg.role === 'assistant' && msg.content === referencedMessage.content)) {
-			newMessages.push({
-				role: 'assistant',
-				content: referencedMessage.content,
-				username: botClient.user.username,
-				timestamp: referencedMessage.createdAt.toISOString()
-			});
+		// The bot message being replied to, if any
+		const replyTarget = isReply && referencedMessage.content ? {
+			role: 'assistant',
+			content: referencedMessage.content,
+			username: botClient.user.username,
+			timestamp: referencedMessage.createdAt.toISOString()
+		} : null;
+
+		// Include the reply target when it is not already in context
+		if (replyTarget &&
+			!history.some(msg => msg.role === 'assistant' && msg.content === replyTarget.content)) {
+			newMessages.push(replyTarget);
 		}
 
 		const userMessage = {
@@ -173,9 +176,13 @@ export default async (message, botClient) => {
 			}
 
 			if (thread) {
-				// Seed the thread with this exchange only. The user's earlier history can come from
-				// other channels, so it stays out of a thread that other people can read and join.
-				await appendChatHistory(thread.id, turn, chatHistoryCollection);
+				// Seed the thread with this exchange only, plus the bot message it replies to.
+				// The user's earlier history can come from other channels, so it stays out of a
+				// thread that other people can read and join.
+				const threadSeed = replyTarget && !newMessages.includes(replyTarget)
+					? [replyTarget, ...turn]
+					: turn;
+				await appendChatHistory(thread.id, threadSeed, chatHistoryCollection);
 				await thread.send(replyContent);
 			} else {
 				// Fallback to regular reply if thread creation fails
