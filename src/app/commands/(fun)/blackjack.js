@@ -299,6 +299,10 @@ export const chatInput = async ({ interaction }) => {
 			busy = true;
 			try {
 				await handleButton(buttonInteraction);
+			} catch (error) {
+				// A failed card draw or Discord call must not crash the bot; the player can click again
+				console.error('Error handling blackjack action:', error);
+				await buttonInteraction.followUp({ content: 'Ocorreu um erro. Tente novamente.', ephemeral: true }).catch(() => {});
 			} finally {
 				busy = false;
 			}
