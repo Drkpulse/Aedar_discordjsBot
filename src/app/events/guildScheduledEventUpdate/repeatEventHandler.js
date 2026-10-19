@@ -1,4 +1,5 @@
 import { GuildScheduledEventStatus, CDN, GuildScheduledEventManager } from 'discord.js';
+import { eventRoleName } from '../../../helpers/eventRoles.js';
 
 const EVENT_START_HOURLY = 3600000;
 const EVENT_START_DAILY = 86400000;
@@ -53,7 +54,7 @@ async function setupEvent(before, after, startingTimeBasedOnLastEvent, client) {
 async function deleteRoleForEvent(event, client) {
 	try {
 		const guild = await client.guilds.fetch(event.guildId);
-		const roleName = `${event.name} Evento`;
+		const roleName = eventRoleName(event.name);
 		const role = guild.roles.cache.find(role => role.name === roleName);
 
 		if (role) {

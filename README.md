@@ -59,6 +59,10 @@ npm run build
 npm start
 ```
 
+`/botupdate` (dev only) pulls the latest code, reinstalls and rebuilds, then exits so the new build starts.
+That restart only happens when the bot runs under a process manager such as pm2 (`pm2 start npm --name aedar -- start`)
+or a systemd service with `Restart=always`. Otherwise it updates and asks you to restart the bot by hand.
+
 ### Configuration
 
 Still managing the configuration file

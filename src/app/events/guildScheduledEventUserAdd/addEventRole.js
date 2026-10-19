@@ -1,4 +1,5 @@
 import { GuildScheduledEventUserAdd } from 'discord.js';
+import { eventRoleName } from '../../../helpers/eventRoles.js';
 
 export default async (event, user, client) => {
     try {
@@ -6,7 +7,7 @@ export default async (event, user, client) => {
         const guild = client.guilds.cache.get(event.guild.id);
 
         // Create a role with the event name
-        const roleName = `${event.name} Evento`; // Use the event name as the role name
+        const roleName = eventRoleName(event.name);
         const existingRole = guild.roles.cache.find(role => role.name === roleName);
 
         let role;
