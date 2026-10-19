@@ -1,0 +1,72 @@
+import { ModalBuilder, EmbedBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from 'discord.js';
+
+export const command = {
+	name: 'botfeedback',
+	description: 'Send feedback about the bot',
+};
+
+export const chatInput = async ({ interaction, client }) => {
+	// Fetch the channel where you want to send the result
+	const feedbackChannelId = process.env.BOTFEEDBACK_CHANNELID;
+	const feedbackChannel = await client.channels.fetch(feedbackChannelId);
+
+	if (!feedbackChannel) {
+		return interaction.reply('Error: Channel not defined.');
+	}
+
+	const modal = new ModalBuilder({
+		customId: `myModal-${interaction.user.id}`,
+		title: 'Sugestão para o bot',
+	});
+
+	const botInput = new TextInputBuilder({
+		customId: 'sugestInput',
+		label: "Tens alguma opinão que querias partilhar?",
+		style: TextInputStyle.Paragraph,
+	});
+
+	// An action row only holds one text input,
+	const firstActionRow = new ActionRowBuilder().addComponents(botInput);
+
+	// Add inputs to the modal
+	modal.addComponents(firstActionRow);
+
+	// Show the modal to the user
+	await interaction.showModal(modal);
+
+	const filter = (interaction) => interaction.customId === `myModal-${interaction.user.id}`;
+
+	interaction
+		.awaitModalSubmit({ filter, time: 60000 })
+		.then((modalInteraction) => {
+			const sugestValue = modalInteraction.fields.getTextInputValue('sugestInput');
+
+			const embed = new EmbedBuilder()
+			.setColor('#C200EB')
+			.setTitle(`Sugestão para o Bot`)
+			.setDescription(`${sugestValue}`)
+			//.setThumbnail()
+			.setTimestamp()
+			.setFooter({ text: `Enviado por ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL()});
+
+			// Send the result to the feedback channel
+			feedbackChannel.send({ embeds: [embed] });
+
+			// Positive Response to User
+			modalInteraction.reply({ content: 'Obrigado pela Sugestão <a:hay:1202624710735822878>', ephemeral: true });
+
+		})
+		.catch((err) => {
+			console.error('Error:', err);
+			interaction.followUp({ content: 'O bot precisa de umas férias, tenta novamente', ephemeral: true });
+		});
+};
+
+export const options = {
+	//devOnly: true,
+	cooldown: '10m',
+	//userPermissions: [],
+	//botPermissions: [],
+	//deleted: false,
+};
+

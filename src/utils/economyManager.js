@@ -1,4 +1,4 @@
-const { getDatabase } = require('../helpers/mongoClient');
+import { getDatabase } from '../helpers/mongoClient.js';
 
 /**
  * Manages user economy transactions and balance operations using MongoDB
@@ -341,4 +341,4 @@ const economyManager = {
     }
 };
 
-module.exports = economyManager;
+export default economyManager;

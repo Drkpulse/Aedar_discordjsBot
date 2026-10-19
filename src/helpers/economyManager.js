@@ -1,4 +1,4 @@
-const { getDatabase } = require('./mongoClient'); // Adjust the import based on your setup
+import { getDatabase } from './mongoClient.js'; // Adjust the import based on your setup
 
 async function createEconomyManager() {
 	const db = await getDatabase();
@@ -89,4 +89,4 @@ class EconomyManager {
 	}
 }
 
-module.exports = createEconomyManager;
+export default createEconomyManager;

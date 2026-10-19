@@ -11,7 +11,7 @@ This bot is designed to enhance the Patins No Porto discord server, and other fa
 
 ### Prerequisites
 
-- Node.js and npm installed on your machine
+- Node.js 24 or newer, and npm
 - Discord Bot token
 
 ### Installation
@@ -44,10 +44,19 @@ Edit the `.env` file and add your Discord Bot token.
 
 ### Usage
 
-Start the bot with:
+The bot runs on [CommandKit](https://commandkit.dev) 1.x, which builds and starts it for you.
+
+Development (restarts and reloads commands when you save a file):
 
 ```bash
-node .
+npm run dev
+```
+
+Production:
+
+```bash
+npm run build
+npm start
 ```
 
 ### Configuration
@@ -56,9 +65,28 @@ Still managing the configuration file
 
 ### Adding Commands
 
-1. Create a new command file in the `commands` directory.
-2. Implement the command logic.
-3. Everything works like magic because of CommandKit
+1. Create a new file in `src/app/commands/(category)/`, for example `src/app/commands/(fun)/hello.js`.
+2. Export `command` (the slash command data) and `chatInput` (the function that runs it).
+3. Optionally export `options` (`cooldown`, `isActive`, `isAdmin`, `devOnly`) and `metadata` (`userPermissions`, `botPermissions`, `guilds`).
+
+```js
+import { SlashCommandBuilder } from 'discord.js';
+
+export const command = new SlashCommandBuilder()
+	.setName('hello')
+	.setDescription('Says hello')
+	.toJSON();
+
+export const chatInput = async ({ interaction }) => {
+	await interaction.reply('Hello!');
+};
+
+export const options = {
+	cooldown: '10s',
+};
+```
+
+Events go in `src/app/events/<eventName>/`, and the checks that run before every command (cooldowns, disabled commands, dev-only commands) are in `src/app/commands/+global-middleware.js`.
 
 ### Contributing
 

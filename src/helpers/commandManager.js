@@ -45,8 +45,4 @@ const loadCommandStates = async (db) => {
     }
 };
 
-module.exports = {
-    setCommandState,
-    isCommandActive,
-    loadCommandStates,
-};
+export { setCommandState, isCommandActive, loadCommandStates };

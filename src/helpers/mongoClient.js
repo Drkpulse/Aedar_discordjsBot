@@ -1,5 +1,4 @@
-require('dotenv').config();
-const { MongoClient } = require('mongodb');
+import { MongoClient } from 'mongodb';
 
 // MongoDB URI and pooling options
 const uri = process.env.MONGO_URI;
@@ -29,4 +28,4 @@ async function getDatabase() {
   return dbInstance;
 }
 
-module.exports = { getDatabase, client };
+export { getDatabase, client };
