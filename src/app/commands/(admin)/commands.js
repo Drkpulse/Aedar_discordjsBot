@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { isCommandActive } from '../../../helpers/commandManager.js';
 import { getLoadedCommands } from '../../../helpers/commandRegistry.js';
+import { isCategoryEnabled } from '../../../helpers/featureManager.js';
 
 export const command = new SlashCommandBuilder()
     .setName('commands')
@@ -68,15 +69,17 @@ export const chatInput = async ({ interaction, commandkit }) => {
         // Check global and guild-specific status
         const isGloballyActive = command.options.isActive !== false;
         const isGuildActive = isCommandActive(command.name, guildId);
+        const isCategoryActive = isCategoryEnabled(command.category, guildId);
         const cooldown = command.options.cooldown || 'None';
         const isAdmin = command.options.isAdmin ? true : false;
 
         categories[category].push({
             name: command.name,
             description: command.description || 'No description',
-            isActive: isGloballyActive && isGuildActive,
+            isActive: isGloballyActive && isGuildActive && isCategoryActive,
             isGloballyActive,
             isGuildActive,
+            isCategoryActive,
             cooldown,
             isAdmin
         });
@@ -118,6 +121,8 @@ export const chatInput = async ({ interaction, commandkit }) => {
                     let statusReason = '';
                     if (!cmd.isGloballyActive) {
                         statusReason = ' (globally disabled)';
+                    } else if (!cmd.isCategoryActive) {
+                        statusReason = ' (category turned off with /features)';
                     } else if (!cmd.isGuildActive) {
                         statusReason = ' (disabled in this server)';
                     }
@@ -162,7 +167,7 @@ export const chatInput = async ({ interaction, commandkit }) => {
             🔴 - Disabled command
             👑 - Admin-only command
 
-            Use \`/toggle\` to enable or disable commands for this server.
+            Use \`/features\` to turn whole categories on or off, or \`/toggle\` for a single command.
         `)
         .setFooter({ text: filterCategory ? 'Use without category to see all commands' : 'Use the category option to filter commands' });
 

@@ -1,6 +1,7 @@
 import { OpenAI } from 'openai';
 import { getDatabase } from '../../../helpers/mongoClient.js';
 import axios from 'axios'; // For web searches
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 // Only create the OpenAI client when a key is set, so the bot still starts without one.
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -16,6 +17,7 @@ const PERSONA_MESSAGE = {
 export default async (message, botClient) => {
 	// Ignore bot messages, and do nothing without an OpenAI key
 	if (message.author.bot || !openai) return;
+	if (!isAutomaticFeatureEnabled('aiChat', message.guildId)) return;
 
 	// Only respond to mentions or replies to the bot.
 	// A deleted or inaccessible reference must not stop an explicit mention.

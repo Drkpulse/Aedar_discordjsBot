@@ -1,7 +1,9 @@
 import { getDatabase } from '../../../helpers/mongoClient.js';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 export default async (message) => {
   if (message.author.bot) return;
+  if (!isAutomaticFeatureEnabled('chatHistory', message.guildId)) return;
 
   const userId = message.author.id;
   const username = message.author.username;

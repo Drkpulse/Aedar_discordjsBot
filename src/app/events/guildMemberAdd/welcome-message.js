@@ -1,3 +1,4 @@
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 /**
  * @param {import('discord.js').GuildMember} guildMember
  */
@@ -6,6 +7,7 @@ export default async (guildMember) => {
 	console.log("Joined");
 	try {
 		if (guildMember.user.bot) return;
+		if (!isAutomaticFeatureEnabled('welcome', guildMember.guild.id)) return;
 
 		const welcomeChannelId = process.env.WELCOME_CHANNELID;
 		const welcomeChannel = guildMember.guild.channels.cache.get(welcomeChannelId);

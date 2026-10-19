@@ -1,7 +1,10 @@
 import { GuildScheduledEventUserAdd } from 'discord.js';
 import { eventRoleName } from '../../../helpers/eventRoles.js';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 export default async (event, user, client) => {
+    if (!isAutomaticFeatureEnabled('eventRoles', event.guildId)) return;
+
     try {
         // Get the guild (server) where the event is happening
         const guild = client.guilds.cache.get(event.guild.id);

@@ -1,5 +1,6 @@
 import { getDatabase } from '../../../helpers/mongoClient.js';
 import { loadCommandStates } from '../../../helpers/commandManager.js';
+import { loadFeatureStates } from '../../../helpers/featureManager.js';
 import { getLoadedCommands } from '../../../helpers/commandRegistry.js';
 
 // clientReady passes the client as its own argument, then CommandKit adds (client, commandkit).
@@ -22,6 +23,10 @@ export default async (readyClient, client, commandkit) => {
         const settingsCount = await collection.countDocuments();
 
         console.log(`\x1b[36m│ \x1b[32m✓ Loaded ${settingsCount} command settings in ${loadTime}ms\x1b[37m`);
+
+        // Load the per-server feature switches set with /features
+        const disabledFeatures = await loadFeatureStates(db);
+        console.log(`\x1b[36m│ \x1b[32m✓ Loaded ${disabledFeatures} disabled features\x1b[37m`);
 
         // Log available commands
         const commands = getLoadedCommands(commandkit);

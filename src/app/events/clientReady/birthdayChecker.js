@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import { getDatabase } from '../../../helpers/mongoClient.js';
 import axios from 'axios';
+import { isAutomaticFeatureEnabled } from '../../../helpers/featureManager.js';
 
 export default async (client) => {
     console.log('Birthday checker initialized');
@@ -70,6 +71,11 @@ async function checkBirthdays(client) {
         const birthdayChannel = await client.channels.fetch(birthdayChannelId);
         if (!birthdayChannel) {
             console.error('Could not find birthday channel');
+            return;
+        }
+
+        if (!isAutomaticFeatureEnabled('birthdays', birthdayChannel.guildId)) {
+            console.log('Birthday announcements are turned off for this server');
             return;
         }
 
