@@ -1,4 +1,4 @@
-import { getDatabase } from '../helpers/mongoClient.js';
+import { getDatabase, getMongoClient } from '../helpers/mongoClient.js';
 
 /**
  * Manages user economy transactions and balance operations using MongoDB
@@ -59,7 +59,7 @@ const economyManager = {
                 }
             );
 
-            return result.value.balance;
+            return result.balance;
         } catch (error) {
             console.error('Error adding balance:', error);
             throw new Error('Failed to add balance');
@@ -97,7 +97,7 @@ const economyManager = {
                 { returnDocument: 'after' }
             );
 
-            return result.value.balance;
+            return result.balance;
         } catch (error) {
             console.error('Error removing balance:', error);
             throw error;
@@ -132,7 +132,7 @@ const economyManager = {
                 }
             );
 
-            return result.value.balance;
+            return result.balance;
         } catch (error) {
             console.error('Error setting balance:', error);
             throw new Error('Failed to set balance');
@@ -160,7 +160,7 @@ const economyManager = {
             if ((fromUser.balance || 0) < amount) throw new Error('Insufficient balance');
 
             // Perform the transfer as a transaction (session)
-            const session = client.startSession();
+            const session = getMongoClient().startSession();
             let fromBalance, toBalance;
 
             try {
@@ -193,8 +193,8 @@ const economyManager = {
                         }
                     );
 
-                    fromBalance = fromResult.value.balance;
-                    toBalance = toResult.value.balance;
+                    fromBalance = fromResult.balance;
+                    toBalance = toResult.balance;
                 });
             } finally {
                 await session.endSession();
@@ -261,7 +261,7 @@ const economyManager = {
                 }
             );
 
-            return result.value.lastWorkTime;
+            return result.lastWorkTime;
         } catch (error) {
             console.error('Error updating work time:', error);
             throw new Error('Failed to update work time');
@@ -315,7 +315,7 @@ const economyManager = {
                 }
             );
 
-            return result.value.lastDailyClaimTime;
+            return result.lastDailyClaimTime;
         } catch (error) {
             console.error('Error updating daily claim time:', error);
             throw new Error('Failed to update daily claim time');
