@@ -94,31 +94,22 @@ const calculateScore = (hand) => {
 	return score;
 };
 
-// Function to get or create player stats
+// Function to get player stats (read-only; games create the record when they finish)
 async function getPlayerStats(userId) {
 	const db = await getDatabase();
 	const statsCollection = db.collection('blackjack_stats');
 
 	const playerStats = await statsCollection.findOne({ userId });
 
-	if (playerStats) {
-		return playerStats;
-	} else {
-		// Create new stats document for first-time players
-		const newStats = {
-			userId,
-			gamesPlayed: 0,
-			gamesWon: 0,
-			gamesLost: 0,
-			gamesTied: 0,
-			blackjacks: 0,
-			busts: 0,
-			lastPlayed: new Date()
-		};
-
-		await statsCollection.insertOne(newStats);
-		return newStats;
-	}
+	return {
+		gamesPlayed: 0,
+		gamesWon: 0,
+		gamesLost: 0,
+		gamesTied: 0,
+		blackjacks: 0,
+		busts: 0,
+		...playerStats
+	};
 }
 
 // Function to update player stats after game
@@ -159,6 +150,16 @@ async function updatePlayerStats(userId, result, hadBlackjack = false, busted = 
 	);
 }
 
+// Save the result without letting a database problem stop the game from finishing
+async function saveResult(embed, ...args) {
+	try {
+		await updatePlayerStats(...args);
+	} catch (error) {
+		console.error('Error saving blackjack stats:', error);
+		embed.setFooter({ text: 'Não foi possível guardar as estatísticas desta partida.' });
+	}
+}
+
 export const command = new SlashCommandBuilder()
         .setName('blackjack')
         .setDescription('Jogue uma partida de Blackjack!')
@@ -174,6 +175,7 @@ export const command = new SlashCommandBuilder()
 export const chatInput = async ({ interaction }) => {
         // Check if the user is requesting stats
         if (interaction.options.getSubcommand() === 'stats') {
+            await interaction.deferReply({ ephemeral: true });
             try {
                 const userId = interaction.user.id;
                 const stats = await getPlayerStats(userId);
@@ -197,13 +199,12 @@ export const chatInput = async ({ interaction }) => {
 					)
 					.setFooter({ text: 'Use /blackjack play para iniciar uma nova partida!' });
 
-				await interaction.reply({ embeds: [statsEmbed], ephemeral: true });
+				await interaction.editReply({ embeds: [statsEmbed] });
 				return;
 			} catch (error) {
 				console.error('Error retrieving blackjack stats:', error);
-				await interaction.reply({
-					content: 'Ocorreu um erro ao buscar suas estatísticas. Tente novamente mais tarde.',
-					ephemeral: true
+				await interaction.editReply({
+					content: 'Ocorreu um erro ao buscar suas estatísticas. Tente novamente mais tarde.'
 				});
 				return;
 			}
@@ -233,7 +234,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
-			await updatePlayerStats(userId, 'tie', true);
+			await saveResult(embed, userId, 'tie', true);
 			await interaction.reply({ embeds: [embed], ephemeral: true });
 			return;
 		} else if (checkNatural(playerHand, playerScore)) {
@@ -244,7 +245,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
-			await updatePlayerStats(userId, 'win', true);
+			await saveResult(embed, userId, 'win', true);
 			await interaction.reply({ embeds: [embed], ephemeral: true });
 			return;
 		} else if (checkNatural(dealerHand, dealerScore)) {
@@ -255,7 +256,7 @@ export const chatInput = async ({ interaction }) => {
 					{ name: 'Suas cartas', value: playerHand.map(getCardEmoji).join(' '), inline: true },
 					{ name: 'Cartas do dealer', value: dealerHand.map(getCardEmoji).join(' '), inline: true }
 				);
-			await updatePlayerStats(userId, 'lose');
+			await saveResult(embed, userId, 'lose');
 			await interaction.reply({ embeds: [embed], ephemeral: true });
 			return;
 		}
@@ -284,19 +285,37 @@ export const chatInput = async ({ interaction }) => {
 		const filter = (buttonInteraction) => buttonInteraction.user.id === interaction.user.id;
 		const collector = reply.createMessageComponentCollector({ filter, time: 30000 });
 
+		// Button clicks are handled one at a time, and a finished game records only one result
+		let finished = false;
+		let busy = false;
+
 		collector.on('collect', async (buttonInteraction) => {
+			if (finished || busy) {
+				await buttonInteraction.deferUpdate().catch(() => {});
+				return;
+			}
+			busy = true;
+			try {
+				await handleButton(buttonInteraction);
+			} finally {
+				busy = false;
+			}
+		});
+
+		async function handleButton(buttonInteraction) {
 			if (buttonInteraction.customId === 'hit') {
 				const newCard = await drawCard();
 				playerHand.push(newCard);
 				playerScore = calculateScore(playerHand);
 
 				if (playerScore > 21) {
+					finished = true;
 					const bustEmbed = new EmbedBuilder()
 						.setColor('#ff0000')
 						.setTitle('Você estourou!')
 						.setDescription(`**Suas cartas:** ${playerHand.map(getCardEmoji).join(' ')} (Total: ${playerScore})\nO dealer ganha.`)
 						.setFooter({ text: 'Fim do jogo' });
-					await updatePlayerStats(userId, 'lose', false, true);
+					await saveResult(bustEmbed, userId, 'lose', false, true);
 					await buttonInteraction.update({ embeds: [bustEmbed], components: [] });
 					collector.stop();
 				} else {
@@ -308,6 +327,7 @@ export const chatInput = async ({ interaction }) => {
 					await buttonInteraction.update({ embeds: [updatedEmbed], components: [row] });
 				}
 			} else if (buttonInteraction.customId === 'stand') {
+				finished = true;
 				// Dealer's turn
 				while (dealerScore < 17 || (dealerScore === 17 && dealerHand.some(card => card.value === 'ACE'))) {
 					const newCard = await drawCard();
@@ -335,11 +355,11 @@ export const chatInput = async ({ interaction }) => {
 					gameResult = 'tie';
 				}
 
-				await updatePlayerStats(userId, gameResult);
+				await saveResult(resultEmbed, userId, gameResult);
 				await buttonInteraction.update({ embeds: [resultEmbed], components: [] });
 				collector.stop();
 			}
-		});
+		}
 
 		collector.on('end', async (_, reason) => {
 			if (reason !== 'user') {
